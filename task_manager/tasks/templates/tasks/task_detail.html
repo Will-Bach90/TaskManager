@@ -1,0 +1,16 @@
+<!-- tasks/templates/tasks/task_detail.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ task.title }}</h1>
+<div>
+    <strong>Assigned to:</strong> {{ task.assigned_to.username }}<br>
+    <strong>Description:</strong> {{ task.description }}<br>
+    <strong>Status:</strong> {{ task.is_completed|yesno:"Completed,In progress" }}<br>
+    <strong>Created at:</strong> {{ task.created_at }}<br>
+    <strong>Last Updated:</strong> {{ task.updated_at }}<br>
+</div>
+
+<a href="{% url 'edit_task' task.id %}">Edit Task</a> |
+<a href="{% url 'delete_task' task.id %}">Delete Task</a>
+{% endblock %}

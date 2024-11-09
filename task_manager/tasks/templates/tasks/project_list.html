@@ -1,0 +1,15 @@
+<!-- tasks/templates/tasks/project_list.html -->
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Project List</h1>
+<ul class="list-group">
+    {% for project in project_list %}
+    <li class="list-group-item">
+        <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a>
+        - {{ project.description }}
+    </li>
+    {% endfor %}
+</ul>
+<a type="button" class="btn btn-primary" href="{% url 'project_create' %}">Create New Project</a>
+{% endblock %}

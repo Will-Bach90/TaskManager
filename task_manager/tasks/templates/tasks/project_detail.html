@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{ project.name }}</h1>
+<div>
+    <p>Description: {{ project.description }}</p>
+    <a href="{% url 'project_edit' project.id %}">Edit Project</a> |
+    <a href="{% url 'project_delete' project.id %}">Delete Project</a>
+</div>
+
+<h2>Tasks</h2>
+<ul>
+    {% for task in project.tasks.all %}
+    <li>
+        <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - {{ task.is_completed|yesno:"Completed,In Progress" }}
+    </li>
+    {% endfor %}
+</ul>
+<a href="{% url 'task_create' project.id %}">Add New Task</a>
+{% endblock %}
