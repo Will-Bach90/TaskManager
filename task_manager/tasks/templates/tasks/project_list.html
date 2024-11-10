@@ -2,14 +2,26 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Project List</h1>
-<ul class="list-group">
+<h1 class="ps-3">Project List</h1>
+<div class="accordion p-3" id="accordionExample">
     {% for project in project_list %}
-    <li class="list-group-item">
-        <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a>
-        - {{ project.description }}
-    </li>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ project.id }}">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ project.id }}" aria-expanded="false" aria-controls="collapse{{ project.id }}">
+            {{ project.name }}
+          </button>
+        </h2>
+        <div id="collapse{{ project.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ project.id }}" data-bs-parent="#accordionExample">
+          <div class="accordion-body">
+                {{ project.description }}
+                <a class="link-success link-opacity-50 link-underline-success link-underline-opacity-50" href="{% url 'project_detail' project.id %}">More...</a>
+          </div>
+        </div>
+      </div>
     {% endfor %}
-</ul>
-<a type="button" class="btn btn-primary" href="{% url 'project_create' %}">Create New Project</a>
+</div>
+    <div class="ps-3 pb-3">
+           <a type="button" class="btn btn-info" href="{% url 'project_create' %}">New Project</a> 
+    </div>
+
 {% endblock %}

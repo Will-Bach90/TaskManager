@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{{ project.name }}</h1>
-<div>
+<h1 class="p-3">{{ project.name }}</h1>
+<div class="container">
     <p>Description: {{ project.description }}</p>
     <a href="{% url 'project_edit' project.id %}">Edit Project</a> |
     <a href="{% url 'project_delete' project.id %}">Delete Project</a>
