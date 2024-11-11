@@ -8,13 +8,21 @@
     <a href="{% url 'project_delete' project.id %}">Delete Project</a>
 </div>
 
-<h2>Tasks</h2>
-<ul>
-    {% for task in project.tasks.all %}
-    <li>
-        <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - {{ task.is_completed|yesno:"Completed,In Progress" }}
-    </li>
-    {% endfor %}
-</ul>
-<a href="{% url 'task_create' project.id %}">Add New Task</a>
+<div class="container">
+    <div class="row pt-3">
+       <h2>Tasks</h2> 
+    </div>
+    <ul>
+        {% for task in project.tasks.all %}
+        <div class="row">
+            <li>
+                <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - {{ task.is_completed|yesno:"Completed,In Progress" }}
+            </li>
+        </div>
+
+        {% endfor %}
+    </ul>
+    <a href="{% url 'task_create' project.id %}">Add New Task</a>
+</div>
+
 {% endblock %}
