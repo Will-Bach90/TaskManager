@@ -1,0 +1,36 @@
+<!-- registration/login.html -->
+{% extends "base.html" %}
+
+{% block content %}
+{% load widget_tweaks %}
+<div class="container w-50 m-auto">
+<form method="post">
+    {% csrf_token %}
+    <h1 class="h3 m-3 fw-normal text-center">Please sign in</h1>
+
+    <div class="form-floating">
+      {{form.username|attr:"class:form-control"|attr:"id:floatingInput"|attr:"placeholder:" }}
+      <label for="floatingInput">Username</label>
+    </div>
+    <div class="form-floating">
+    {{ form.password|attr:"class:form-control"|attr:"id:floatingPassword"|attr:"placeholder:" }}
+      <label for="floatingPassword">Password</label>
+    </div>
+
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            {{ form.non_field_errors }}
+        </div>
+    {% endif %}
+
+    <div class="form-check text-start my-3">
+      <input class="form-check-input" type="checkbox" name="remember" id="flexCheckDefault">
+      <label class="form-check-label" for="flexCheckDefault">
+        Remember me
+      </label>
+    </div>
+    <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
+</form>
+<p class="mt-2 text-center">Don't have an account? <a href="#">Register here</a></p>
+</div>
+{% endblock %}

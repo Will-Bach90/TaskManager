@@ -7,6 +7,8 @@ name = "pypi"
 django = "*"
 channels = "*"
 django-widget-tweaks = "*"
+python-dotenv = "*"
+psycopg2 = "*"
 
 [dev-packages]
 
