@@ -57,6 +57,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'task_manager.middleware.LoginRequiredMiddleware',
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -99,7 +100,7 @@ CHANNEL_LAYERS = {
 DATABASES = {  
     'default': {  
         'ENGINE': 'django.db.backends.postgresql',  
-        'NAME': 'taskmanager',  
+        'NAME': 'task_manager',  
         'USER': POSTGRES_DB_USERNAME,  
         'PASSWORD': POSTGRES_DB_PASSWORD,
         'HOST': 'localhost',  
@@ -143,6 +144,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = 'static/'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = '/projects/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

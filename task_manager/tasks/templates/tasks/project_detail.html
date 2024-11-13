@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="p-3">{{ project.name }}</h1>
 <div class="container">
+    <h1 class="pt-3 pb-3">{{ project.name }}</h1>
     <p>Description: {{ project.description }}</p>
     <a href="{% url 'project_edit' project.id %}">Edit Project</a> |
     <a href="{% url 'project_delete' project.id %}">Delete Project</a>
@@ -12,16 +12,20 @@
     <div class="row pt-3">
        <h2>Tasks</h2> 
     </div>
-    <ul>
+    <div class="list-group">
         {% for task in project.tasks.all %}
-        <div class="row">
-            <li>
-                <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a> - {{ task.is_completed|yesno:"Completed,In Progress" }}
-            </li>
-        </div>
-
+                <label class="list-group-item d-flex gap-3">
+                  <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;">
+                  <span class="pt-1 form-checked-content">
+                    <strong>{{ task.title }}</strong>
+                    <small class="d-block text-body-secondary">
+                      <svg class="bi me-1" width="1em" height="1em"><use xlink:href="#calendar-event"></use></svg>
+                      {{ task.due_date }}
+                    </small>
+                  </span>
+                </label>
         {% endfor %}
-    </ul>
+    </div>
     <a href="{% url 'task_create' project.id %}">Add New Task</a>
 </div>
 
