@@ -14,7 +14,7 @@
     </div>
     <div class="list-group">
         {% for task in project.tasks.all %}
-                <label class="list-group-item d-flex gap-3">
+                <label class="list-group-item d-flex gap-3 task" id="task-{{ task.id }}">
                   <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;">
                   <span class="pt-1 form-checked-content">
                     <strong>{{ task.title }}</strong>
@@ -23,6 +23,7 @@
                       {{ task.due_date }}
                     </small>
                   </span>
+                  <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">X</a>
                 </label>
         {% endfor %}
     </div>

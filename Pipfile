@@ -9,6 +9,8 @@ channels = "*"
 django-widget-tweaks = "*"
 python-dotenv = "*"
 psycopg2 = "*"
+channels-redis = "*"
+uvicorn = "*"
 
 [dev-packages]
 

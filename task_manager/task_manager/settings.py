@@ -21,6 +21,7 @@ POSTGRES_DB_USERNAME = os.getenv('POSTGRES_DB_USERNAME')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+print(BASE_DIR)
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,7 +33,7 @@ SECRET_KEY = 'django-insecure-6#7qqfln(mbh&_0x*p$8-qssqr9eo6u7y#-c_7a08sd0n#^1-e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 
 # Application definition
@@ -83,7 +84,10 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 ASGI_APPLICATION = 'task_manager.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('127.0.0.1', 6379)],
+        },
     },
 }
 
@@ -143,6 +147,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+print(STATICFILES_DIRS)
 STATIC_URL = 'static/'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/projects/'
