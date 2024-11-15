@@ -1,10 +1,11 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 class TaskConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.project_id = self.scope['url_route']['kwargs']['project_id']
-        self.project_group_name = 'project_%s' % self.project_id
+        self.project_group_name = 'general_project_group'
 
         await self.channel_layer.group_add(
             self.project_group_name,
@@ -25,17 +26,26 @@ class TaskConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(
             self.project_group_name,
             {
-                'type': 'task_message',
+                'type': 'send_task_message',
                 'message': message
             }
         )
 
-    async def task_message(self, event):
+    async def send_task_message(self, event):
         message = event['message']
-
         await self.send(text_data=json.dumps({
             'message': message
         }))
+
+    async def delete_task(self, task_id):
+        await self.channel_layer.group_send(
+            self.project_group_name,
+            {
+                'type': 'send_task_message',
+                'message': json.dumps({"action": "delete", "task_id": task_id})
+            }
+        )
+
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):
