@@ -65,3 +65,78 @@ taskSocket.onclose = function(e) {
 function sendMessage(message) {
     taskSocket.send(JSON.stringify({'message': message}));
 }
+
+
+//=======================================================================================================
+
+const projectSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/projects/' 
+);
+
+projectSocket.onmessage = function(event) {
+    const data = JSON.parse(event.data); 
+    console.log("WebSocket message received: ", data);
+
+    if (data.message) {
+        const projectData = JSON.parse(data.message); 
+        console.log("Parsed project data: ", projectData);
+
+        if (projectData.action === 'deleted') {
+            handleProjectDeletion(projectData.id);
+        } else if (projectData.action === 'created') {
+            handleProjectAddition(projectData);
+        }
+    }
+};
+
+function handleProjectDeletion(projectId) {
+    const projectElement = document.getElementById('project-' + projectId);
+    if (projectElement) {
+        projectElement.remove();
+        console.log("Project removed from DOM: ", projectId);
+    } else {
+        console.warn("Project element not found in DOM: ", projectId); 
+    }
+}
+
+function handleProjectAddition(projectData) {
+    const projectsContainer = document.getElementById('projects-container');
+    if (projectsContainer) {
+        const projectElement = document.createElement('div');
+        projectElement.className = 'card text-center m-3';
+        projectElement.style = 'width: 18rem;';
+        projectElement.id = 'project-' + projectData.id;
+
+        const projectName = projectData.name;
+        let projectDescription = projectData.description;
+
+        if (typeof projectDescription === 'string' && projectDescription.length > 100) {
+            projectDescription = projectDescription.substring(0, 100) + '...';
+        }
+
+        const projectDetailUrl = `/projects/${projectData.id}/`;
+
+        projectElement.innerHTML = `
+        <div class="card-body">
+            <h5 class="card-title">${projectName}</h5>
+            <p class="card-text">${projectDescription}</p>
+            <a href="${projectDetailUrl}" class="btn btn-primary">More</a>
+        </div>
+        `;
+
+        projectsContainer.appendChild(projectElement);
+        console.log("Project added to DOM: ", projectData.id);
+    } else {
+        console.warn("Projects container not found in DOM");
+    }
+}
+
+
+
+projectSocket.onclose = function(e) {
+    console.error('Project socket closed unexpectedly');
+};
+
+function sendMessage(message) {
+    projectSocket.send(JSON.stringify({'message': message}));
+}

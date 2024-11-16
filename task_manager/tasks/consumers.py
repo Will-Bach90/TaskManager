@@ -55,6 +55,57 @@ class TaskConsumer(AsyncWebsocketConsumer):
             }
         )
 
+class ProjectConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.project_group_name = 'projects_group'
+
+        await self.channel_layer.group_add(
+            self.project_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.project_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        message = text_data_json['message']
+
+        await self.channel_layer.group_send(
+            self.project_group_name,
+            {
+                'type': 'send_project_message',
+                'message': message
+            }
+        )
+
+    async def send_project_message(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'message': message
+        }))
+
+    async def delete_task(self, project_id):
+        await self.channel_layer.group_send(
+            self.project_group_name,
+            {
+                'type': 'send_project_message',
+                'message': json.dumps({"action": "delete", "project_id": project_id})
+            }
+        )
+    
+    async def add_project(self, project_id):
+        await self.channel_layer.group_send(
+            self.project_group_name,
+            {
+                'type': 'send_project_message',
+                'message': json.dumps({"action": "create", "project_id": project_id})
+            }
+        )
 
 class MyConsumer(AsyncWebsocketConsumer):
     async def connect(self):

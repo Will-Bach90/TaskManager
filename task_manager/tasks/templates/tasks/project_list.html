@@ -7,9 +7,9 @@
         <div class="row">
             <h1 class="ps-3 pt-3">Project List</h1>
         </div>
-        <div class="row">
+        <div class="row" id="projects-container">
         {% for project in project_list %}
-            <div class="card text-center m-3" style="width: 18rem;">
+            <div class="card text-center m-3" style="width: 18rem;" id="project-{{ project.id }}">
                 <div class="card-body">
                 <h5 class="card-title">{{ project.name }}</h5>
                 <p class="card-text">{{ project.description|slice:":100" }}{% if project.description|length > 100 %}...{% endif %}</p>

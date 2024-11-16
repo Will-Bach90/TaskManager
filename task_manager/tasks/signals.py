@@ -2,7 +2,7 @@
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Task
+from .models import Task, Project
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
@@ -33,6 +33,37 @@ def announce_task_deletion(sender, instance, **kwargs):
         "general_project_group",
         {
             "type": "send_task_message",
+            "message": json.dumps(message),
+        }
+    )
+
+@receiver(post_save, sender=Project)
+def announce_project_save(sender, instance, created, **kwargs):
+    print("Signal triggered for addition of project", instance.name)
+    channel_layer = get_channel_layer()
+    message = {
+        'id': instance.id, 
+        'name': instance.name, 
+        'description': instance.description,
+        'action': 'created'
+    }
+    async_to_sync(channel_layer.group_send)(
+        "projects_group",
+        {
+            "type": "send_project_message",
+            "message": json.dumps(message),
+        }
+    )
+
+@receiver(post_delete, sender=Project)
+def announce_project_deletion(sender, instance, **kwargs):
+    print("Signal triggered for deletion of project", instance.name)
+    channel_layer = get_channel_layer()
+    message = {'id': instance.id, 'action': 'deleted'}
+    async_to_sync(channel_layer.group_send)(
+        "projects_group",
+        {
+            "type": "send_project_message",
             "message": json.dumps(message),
         }
     )
