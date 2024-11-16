@@ -12,7 +12,7 @@
     <div class="row pt-3">
        <h2>Tasks</h2> 
     </div>
-    <div class="list-group">
+    <div class="list-group" id="tasks-container">
         {% for task in project.tasks.all %}
                 <label class="list-group-item d-flex gap-3 task" id="task-{{ task.id }}">
                   <input class="form-check-input flex-shrink-0" type="checkbox" value="" checked="" style="font-size: 1.375em;">
@@ -23,7 +23,7 @@
                       {{ task.due_date }}
                     </small>
                   </span>
-                  <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">X</a>
+                  <a href="{% url 'task_delete' task.id %}" class="btn btn-danger pb-0">Delete</a>
                 </label>
         {% endfor %}
     </div>

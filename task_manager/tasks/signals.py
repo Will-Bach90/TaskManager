@@ -9,16 +9,17 @@ import json
 
 @receiver(post_save, sender=Task)
 def announce_task_save(sender, instance, created, **kwargs):
+    print("Signal triggered for addition of task", instance.title)
     channel_layer = get_channel_layer()
     message = {
         'id': instance.id, 
         'title': instance.title, 
-        'action': 'created' if created else 'updated'
+        'action': 'created'
     }
     async_to_sync(channel_layer.group_send)(
-        "task_updates",
+        "general_project_group",
         {
-            "type": "task_message",
+            "type": "send_task_message",
             "message": json.dumps(message),
         }
     )

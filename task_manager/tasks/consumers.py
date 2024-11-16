@@ -45,6 +45,15 @@ class TaskConsumer(AsyncWebsocketConsumer):
                 'message': json.dumps({"action": "delete", "task_id": task_id})
             }
         )
+    
+    async def add_task(self, task_id):
+        await self.channel_layer.group_send(
+            self.project_group_name,
+            {
+                'type': 'send_task_message',
+                'message': json.dumps({"action": "create", "task_id": task_id})
+            }
+        )
 
 
 class MyConsumer(AsyncWebsocketConsumer):
