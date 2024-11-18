@@ -1,12 +1,11 @@
 from django import forms
 from django.urls import reverse, reverse_lazy
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   RedirectView, UpdateView)
 
-from .models import Project, Task
+from .models import Project, Task, Message, ChatRoom
 import json
-
 
 class HomeView(RedirectView):
     url = reverse_lazy('project_list')
@@ -74,10 +73,17 @@ class TaskDeleteView(DeleteView):
 
 ##################################################################################################################
 ##################################################################################################################
-##################################################################################################################
-##################################################################################################################
 
+# def chat(request, room_name):
+#     return render(request, 'tasks/chat_page.html', {
+#         'room_name_json': json.dumps(room_name)
+#     })
 def chat(request, room_name):
+    room = get_object_or_404(ChatRoom, name=room_name) 
+    messages = Message.objects.filter(room=room).order_by("timestamp")  
+
     return render(request, 'tasks/chat_page.html', {
-        'room_name_json': json.dumps(room_name)
+        'room_name_json': json.dumps(room_name),  
+        'messages': messages,  
+        'current_user': request.user,
     })

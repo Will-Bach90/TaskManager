@@ -2,10 +2,22 @@
 
 {% block content %}
 <div class="container">
-    <div class="row">
-        <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    <div class="row mb-1">
+        <div id="chat-log">
+            {% for message in messages %}
+            <div class="{% if message.author == request.user %}message-right{% else %}message-left{% endif %}">
+                <p>
+                    <b>{{ message.author.username }}</b> 
+                    <span id="msg-date">{{ message.timestamp|date:"m/d/Y H:iA" }}:</span><br>
+                    <span class="message-badge {% if message.author == request.user %}text-bg-success{% else %}text-bg-secondary{% endif %}">
+                        {{ message.content }}
+                    </span>
+                </p>
+            </div>
+            {% endfor %}
+        </div>
     </div>
-    <div class="row">
+    <div class="row mb-1">
         <input id="chat-message-input" type="text" size="100"><br>
     </div>
     <div class="row">

@@ -27,5 +27,5 @@ urlpatterns = [
     path('tasks/<int:pk>/delete/', views.TaskDeleteView.as_view(), name='task_delete'),
 
 
-    path('chat/<int:room_id>/', views.chat, name='chat'),
+    path('chat/<str:room_name>/', views.chat, name='chat'),
 ]

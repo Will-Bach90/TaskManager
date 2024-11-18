@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tasks',
     'channels',
+    'channels.db',
     'widget_tweaks',
 ]
 

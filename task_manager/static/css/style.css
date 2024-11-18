@@ -1,6 +1,70 @@
 input[type="date"].form-control {
     appearance: auto;
 }
+
+#chat-log {
+    width: 100%; 
+    height: 400px; 
+    overflow-y: scroll; 
+    border: 1px solid rgb(161, 161, 161); 
+    padding: 10px;
+    border-radius: 5px;
+    background-color: rgb(240, 240, 240);
+    display: flex;
+    flex-direction: column;
+}
+
+.message-right, .message-left {
+    max-width: 75%;
+    padding: 5px;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+.message-right {
+    text-align: right;
+    margin-left: auto;
+}
+
+.message-left {
+    text-align: left;
+    margin-right: auto;
+}
+
+.message-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    font-size: 14px;
+    line-height: 1.1;
+    word-wrap: break-word; 
+    white-space: pre-wrap;
+    border-radius: 15px;
+}
+
+.message-badge.text-bg-success {
+    background-color: #198754;
+    color: white;
+}
+
+.message-badge.text-bg-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+#chat-message-input {
+    border: 1px solid rgb(161, 161, 161); 
+    padding: 10px;
+    border-radius: 5px;
+}
+
+#chat-message-submit {
+    max-width: 200px;
+}
+
+#msg-date {
+    font-size: 8pt;
+    color: rgb(120, 120, 120);
+}
 /* static/css/style.css */
 /* body {
     font-family: Arial, sans-serif;

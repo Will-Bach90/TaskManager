@@ -81,7 +81,6 @@ def announce_new_message(sender, instance, created, **kwargs):
             'content': instance.content,
             'timestamp': instance.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         }
-        print(prepared_message)
         async_to_sync(channel_layer.group_send)(
             group_name,
             {
