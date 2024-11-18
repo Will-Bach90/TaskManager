@@ -2,7 +2,7 @@
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Task, Project
+from .models import Task, Project, Message
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
@@ -67,3 +67,25 @@ def announce_project_deletion(sender, instance, **kwargs):
             "message": json.dumps(message),
         }
     )
+
+@receiver(post_save, sender=Message)
+def announce_new_message(sender, instance, created, **kwargs):
+    if created:
+        print("Signal handler entered")
+        print("New message created:", instance.content)
+        group_name = f'chat_{instance.room.name}'  # Use room name dynamically
+        print("Group name:", group_name)
+        channel_layer = get_channel_layer()
+        prepared_message = {
+            'author': instance.author.username,
+            'content': instance.content,
+            'timestamp': instance.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+        }
+        print(prepared_message)
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                'type': 'chat_message',
+                'message': json.dumps(prepared_message)
+            }
+        )

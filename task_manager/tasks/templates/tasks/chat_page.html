@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <textarea id="chat-log" cols="100" rows="20"></textarea><br>
+    </div>
+    <div class="row">
+        <input id="chat-message-input" type="text" size="100"><br>
+    </div>
+    <div class="row">
+        <input class="btn btn-primary" id="chat-message-submit" type="button" value="Send">
+    </div>
+</div>
+<script type="text/javascript">
+    var roomName = {{ room_name_json|safe }};
+</script>
+{% endblock %}

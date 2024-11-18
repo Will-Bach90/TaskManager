@@ -1,8 +1,12 @@
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .models import Project, Task
 from django import forms
-from django.views.generic import RedirectView
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
+from django.shortcuts import render
+from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
+                                  RedirectView, UpdateView)
+
+from .models import Project, Task
+import json
+
 
 class HomeView(RedirectView):
     url = reverse_lazy('project_list')
@@ -25,7 +29,8 @@ class ProjectUpdateView(UpdateView):
     model = Project
     fields = ['name', 'description']
     template_name = 'tasks/project_form.html'
-    success_url = '/'
+    def get_success_url(self):
+        return reverse('project_detail', kwargs={'pk': self.object.id})
 
 class ProjectDeleteView(DeleteView):
     model = Project
@@ -49,16 +54,30 @@ class TaskCreateView(CreateView):
     model = Task
     form_class = TaskForm
     template_name = 'tasks/task_form.html'
-    success_url = '/'  # Redirect URL after successful creation
+    def get_success_url(self):
+        return reverse('project_detail', kwargs={'pk': self.object.project.id})
 
 class TaskUpdateView(UpdateView):
     model = Task
     fields = ['title', 'description', 'project', 'assigned_to', 'due_date', 'is_completed']
     template_name = 'tasks/task_form.html'
-    success_url = '/'
+    def get_success_url(self):
+        return reverse('project_detail', kwargs={'pk': self.object.project.id})
 
 class TaskDeleteView(DeleteView):
     model = Task
+    fields = ['title', 'project']
     template_name = 'tasks/task_confirm_delete.html'
-    success_url = '/'
+    def get_success_url(self):
+        return reverse('project_detail', kwargs={'pk': self.object.project.id})
 
+
+##################################################################################################################
+##################################################################################################################
+##################################################################################################################
+##################################################################################################################
+
+def chat(request, room_name):
+    return render(request, 'tasks/chat_page.html', {
+        'room_name_json': json.dumps(room_name)
+    })

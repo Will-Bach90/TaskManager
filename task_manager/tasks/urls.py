@@ -25,4 +25,7 @@ urlpatterns = [
 
     # URL for deleting a task
     path('tasks/<int:pk>/delete/', views.TaskDeleteView.as_view(), name='task_delete'),
+
+
+    path('chat/<int:room_id>/', views.chat, name='chat'),
 ]

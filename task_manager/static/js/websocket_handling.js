@@ -140,3 +140,46 @@ projectSocket.onclose = function(e) {
 function sendMessage(message) {
     projectSocket.send(JSON.stringify({'message': message}));
 }
+
+
+
+
+
+
+
+console.log("Room name:", roomName);
+
+const chatSocket = new WebSocket(
+    'ws://' + window.location.host + '/ws/chat/' + roomName + '/'
+);
+
+chatSocket.onopen = function(e) {
+    console.log('Chat socket opened', e);
+};
+
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log("WebSocket received data:", data); 
+    if (data.message) {
+        updateChatLog(data.author, data.message, data.timestamp);
+    }
+};
+
+function updateChatLog(author, message, timestamp) {
+    const chatLog = document.getElementById('chat-log');
+    chatLog.value += `${author}: ${message} (${timestamp})\n`;
+    chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+document.querySelector('#chat-message-submit').onclick = function(e) {
+    const messageInputDom = document.querySelector('#chat-message-input');
+    const message = messageInputDom.value;
+    console.log('Sending message: ', message);
+    chatSocket.send(JSON.stringify({'message': message}));
+    messageInputDom.value = '';
+};
+
+chatSocket.onerror = function(e) {
+    console.error('Chat socket encountered error: ', e, 'Closing socket');
+    chatSocket.close();
+};
