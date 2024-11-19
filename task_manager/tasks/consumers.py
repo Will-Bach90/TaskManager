@@ -133,24 +133,111 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message_content = text_data_json.get("message")
+        action = text_data_json.get("action")
         user = self.scope["user"]
 
+        # from .models import ChatRoom, Message
+        # room, _ = await database_sync_to_async(ChatRoom.objects.get_or_create)(
+        #     name=self.scope['url_route']['kwargs']['room_name']
+        # )
+        # await database_sync_to_async(Message.objects.create)(
+        #     room=room,
+        #     author=user,
+        #     content=message_content
+        # )
+        if action == "send":
+            await self.handle_send_message(text_data_json, user)
+        elif action == "edit":
+            await self.handle_edit_message(text_data_json, user)
+        elif action == "delete":
+            await self.handle_delete_message(text_data_json, user)
+
+    # async def chat_message(self, event):
+    #     message = event.get('message', None)
+    #     if message:
+    #         message_content = json.loads(message)
+    #         await self.send(text_data=json.dumps({
+    #             'author': message_content['author'],
+    #             'message': message_content['content'],
+    #             'timestamp': message_content['timestamp'],
+    #         }))
+
+    async def handle_send_message(self, data, user):
         from .models import ChatRoom, Message
+        message_content = data.get("message")
         room, _ = await database_sync_to_async(ChatRoom.objects.get_or_create)(
-            name=self.scope['url_route']['kwargs']['room_name']
+            name=self.room_name
         )
-        await database_sync_to_async(Message.objects.create)(
+        message = await database_sync_to_async(Message.objects.create)(
             room=room,
             author=user,
             content=message_content
         )
+        # Broadcast the message to the group
+        await self.channel_layer.group_send(
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "action": "send",
+                "message": json.dumps({
+                    "author": user.username,
+                    "content": message.content,
+                    "timestamp": message.timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    "message_id": message.id,
+                }),
+            },
+        )
+
+    async def handle_edit_message(self, data, user):
+        from .models import ChatRoom, Message
+        message_id = data.get("message_id")
+        new_content = data.get("new_content")
+
+        try:
+            message = await database_sync_to_async(Message.objects.get)(id=message_id, author=user)
+            message.content = new_content
+            await database_sync_to_async(message.save)()
+
+            # Broadcast the updated message to the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "action": "edit",
+                    "message": json.dumps({
+                        "message_id": message_id,
+                        "new_content": new_content,
+                    }),
+                },
+            )
+        except Message.DoesNotExist:
+            await self.send(text_data=json.dumps({"error": "Message not found or not editable by this user"}))
+
+    async def handle_delete_message(self, data, user):
+        from .models import ChatRoom, Message
+        message_id = data.get("message_id")
+
+        try:
+            message = await database_sync_to_async(Message.objects.get)(id=message_id, author=user)
+            await database_sync_to_async(message.delete)()
+
+            # Broadcast the deletion to the group
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    "type": "chat_message",
+                    "action": "delete",
+                    "message": json.dumps({
+                        "message_id": message_id,
+                    }),
+                },
+            )
+        except Message.DoesNotExist:
+            await self.send(text_data=json.dumps({"error": "Message not found or not deletable by this user"}))
 
     async def chat_message(self, event):
-        message = event.get('message', None)
-        if message:
-            message_content = json.loads(message)
-            await self.send(text_data=json.dumps({
-                'author': message_content['author'],
-                'message': message_content['content'],
-                'timestamp': message_content['timestamp'],
-            }))
+        # Forward the message to WebSocket
+        await self.send(text_data=json.dumps({
+            "action": event["action"],
+            "message": event["message"],
+        }))

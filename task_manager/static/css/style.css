@@ -7,7 +7,7 @@ input[type="date"].form-control {
     height: 400px; 
     overflow-y: scroll; 
     border: 1px solid rgb(161, 161, 161); 
-    padding: 10px;
+    padding: 20px;
     border-radius: 5px;
     background-color: rgb(240, 240, 240);
     display: flex;
@@ -16,29 +16,51 @@ input[type="date"].form-control {
 
 .message-right, .message-left {
     max-width: 75%;
-    padding: 5px;
     word-wrap: break-word;
-    white-space: pre-wrap;
 }
 
 .message-right {
-    text-align: right;
     margin-left: auto;
+    text-align: right;
 }
 
 .message-left {
-    text-align: left;
     margin-right: auto;
+    text-align: left;
 }
 
-.message-badge {
+.msgRight {
+    text-align: left !important;
+}
+
+.chat-message {
+    position: relative;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+.chat-message:hover .message-controls {
+    display: flex; /* Show buttons when hovered */
+    gap: 5px; /* Add spacing between buttons */
+}
+
+.message-controls {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none; /* Hidden by default */
+}
+
+/* .message-badge {
     display: inline-block;
-    padding: 5px 10px;
+    padding: 5px 15px;
     font-size: 14px;
     line-height: 1.1;
     word-wrap: break-word; 
     white-space: pre-wrap;
     border-radius: 15px;
+    word-break: break-word;
 }
 
 .message-badge.text-bg-success {
@@ -49,12 +71,38 @@ input[type="date"].form-control {
 .message-badge.text-bg-secondary {
     background-color: #6c757d;
     color: white;
+} */
+.message-badge {
+    display: inline-block;
+    padding: 20px 25px;
+    font-size: 14px;
+    line-height: 1.1;
+    word-wrap: break-word;
+    word-break: break-word;
+    border-radius: 15px;
+    background-color: #6c757d;
+    color: white;
+}
+
+.message-badge.text-bg-success {
+    background-color: #198754; /* Success green */
+}
+
+.message-badge.text-bg-secondary {
+    background-color: #6c757d; /* Secondary gray */
 }
 
 #chat-message-input {
     border: 1px solid rgb(161, 161, 161); 
     padding: 10px;
     border-radius: 5px;
+    word-wrap: break-word;
+    word-break: break-word;
+    resize: none;
+    min-height: 50px;
+    max-height: 200px;
+    width: 100%;
+    box-sizing: border-box; 
 }
 
 #chat-message-submit {

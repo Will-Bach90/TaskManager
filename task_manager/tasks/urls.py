@@ -28,4 +28,7 @@ urlpatterns = [
 
 
     path('chat/<str:room_name>/', views.chat, name='chat'),
+
+    path('message/<int:message_id>/delete/', views.delete_message, name='delete_message'),
+    path('message/<int:message_id>/edit/', views.edit_message, name='edit_message'),
 ]

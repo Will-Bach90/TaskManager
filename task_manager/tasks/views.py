@@ -6,6 +6,8 @@ from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
 
 from .models import Project, Task, Message, ChatRoom
 import json
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
 
 class HomeView(RedirectView):
     url = reverse_lazy('project_list')
@@ -87,3 +89,27 @@ def chat(request, room_name):
         'messages': messages,  
         'current_user': request.user,
     })
+
+@csrf_exempt
+def delete_message(request, message_id):
+    if request.method == 'DELETE':
+        try:
+            message = Message.objects.get(id=message_id, author=request.user)
+            message.delete()
+            return JsonResponse({'status': 'success'})
+        except Message.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def edit_message(request, message_id):
+    if request.method == 'PUT':
+        try:
+            data = json.loads(request.body)
+            message = Message.objects.get(id=message_id, author=request.user)
+            message.content = data.get('content', message.content)
+            message.save()
+            return JsonResponse({'status': 'success'})
+        except Message.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

@@ -157,19 +157,115 @@ chatSocket.onopen = function(e) {
     console.log('Chat socket opened', e);
 };
 
-chatSocket.onmessage = function(e) {
+// chatSocket.onmessage = function(e) {
+//     const data = JSON.parse(e.data);
+//     console.log("WebSocket received data:", data); 
+//     if (data.message) {
+//         const isCurrentUser = data.author === currentUsername;
+//         updateChatLog(data.author, data.message, data.timestamp, isCurrentUser);
+//     }
+// };
+
+chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
-    console.log("WebSocket received data:", data); 
-    if (data.message) {
-        updateChatLog(data.author, data.message, data.timestamp);
+    console.log("WebSocket received data:", data);
+
+    if (data.action === "message") {
+        const isCurrentUser = data.author === currentUsername;
+        updateChatLog(data.author, data.message, data.timestamp, isCurrentUser);
+    } else if (data.action === "edit") {
+        const messageElement = document.querySelector(`[data-message-id="${data.message_id}"] .message-badge`);
+        if (messageElement) {
+            messageElement.textContent = data.new_content;
+        } else {
+            console.warn(`Message with ID ${data.message_id} not found.`);
+        }
+    } else if (data.action === "delete") {
+        const messageContainer = document.querySelector(`[data-message-id="${data.message_id}"]`);
+        if (messageContainer) {
+            messageContainer.remove();
+        } else {
+            console.warn(`Message with ID ${data.message_id} not found.`);
+        }
     }
 };
 
-function updateChatLog(author, message, timestamp) {
-    const chatLog = document.getElementById('chat-log');
-    chatLog.value += `${author}: ${message} (${timestamp})\n`;
-    chatLog.scrollTop = chatLog.scrollHeight;
+// function updateChatLog(author, message, timestamp) {
+//     const chatLog = document.getElementById('chat-log');
+//     console.log(`${author}: ${message} (${timestamp})\n`)
+//     chatLog.value += `${author}: ${message} (${timestamp})\n`;
+//     chatLog.scrollTop = chatLog.scrollHeight;
+// }
+
+function forceRepaint(element) {
+    element.style.display = 'none';
+    element.offsetHeight; // Trigger reflow
+    element.style.display = '';
 }
+function updateChatLog(author, message, timestamp, isCurrentUser) {
+    const chatLog = document.getElementById("chat-log");
+
+    const messageContainer = document.createElement("div");
+    messageContainer.className = isCurrentUser ? "message-right" : "message-left";
+    messageContainer.setAttribute("data-message-id", `${timestamp}-${author}`); // Unique ID if message ID isn't available
+
+    const messageDetails = `
+        <p style="margin-top: 10pt;">
+            <b style="font-size: 11pt; padding-left: 5px !important;">${author}</b><br>
+            <span id="msg-date" style="padding-right: 5px;">${timestamp}:</span><br>
+            <span class="message-badge ${isCurrentUser ? "text-bg-success msgRight" : "text-bg-secondary msgLeft"}">
+                ${message}
+            </span>
+        </p>
+        ${isCurrentUser ? `
+        <div class="message-controls" style="display: none;">
+            <button class="btn btn-sm btn-primary edit-btn" data-message-id="${timestamp}-${author}">Edit</button>
+            <button class="btn btn-sm btn-danger delete-btn" data-message-id="${timestamp}-${author}">Delete</button>
+        </div>
+        ` : ""}
+    `;
+    messageContainer.innerHTML = messageDetails;
+    messageContainer.innerHTML = messageDetails;
+    chatLog.appendChild(messageContainer);
+
+    // Scroll to bottom
+    chatLog.scrollTop = chatLog.scrollHeight;
+
+    // const chatLog = document.getElementById('chat-log');
+
+    // const messageContainer = document.createElement('div');
+    // messageContainer.className = isCurrentUser ? 'message-right' : 'message-left';
+    // const messageDetails = document.createElement('p');
+    // messageDetails.style.marginTop = '10pt';
+
+    // const authorElement = document.createElement('b');
+    // authorElement.textContent = author;
+    // authorElement.style.fontSize = '11pt';
+    // authorElement.style.paddingLeft = '5px';
+    // messageDetails.appendChild(authorElement);
+
+    // const timestampElement = document.createElement('span');
+    // timestampElement.id = 'msg-date';
+    // timestampElement.textContent = `${timestamp}`;
+    // authorElement.style.paddingRight = '5px';
+    // messageDetails.appendChild(timestampElement);
+
+    // messageDetails.appendChild(document.createElement('br'));
+
+    // const messageBadge = document.createElement('span');
+    // messageBadge.className = `message-badge ${isCurrentUser ? 'text-bg-success msgRight' : 'text-bg-secondary msgLeft'}`;
+    // messageBadge.textContent = message;
+    // messageDetails.appendChild(messageBadge);
+
+    // messageContainer.appendChild(messageDetails);
+    // chatLog.appendChild(messageContainer);
+    // chatLog.scrollTop = chatLog.scrollHeight;
+
+
+    // forceRepaint(chatLog);
+}
+
+
 
 document.querySelector('#chat-message-submit').onclick = function(e) {
     const messageInputDom = document.querySelector('#chat-message-input');
@@ -183,3 +279,88 @@ chatSocket.onerror = function(e) {
     console.error('Chat socket encountered error: ', e, 'Closing socket');
     chatSocket.close();
 };
+
+const chatLog = document.getElementById('chat-log');
+
+window.addEventListener('beforeunload', function () {
+    localStorage.setItem('chatLogScrollTop', chatLog.scrollTop);
+});
+
+window.onload = function () {
+    const savedScrollTop = localStorage.getItem('chatLogScrollTop');
+    if (savedScrollTop !== null) {
+        chatLog.scrollTop = savedScrollTop;
+    } else {
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+};
+
+const inputBox = document.getElementById('chat-message-input');
+
+inputBox.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = this.scrollHeight + 'px';
+});
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const messageId = this.getAttribute('data-message-id');
+            if (confirm('Are you sure you want to delete this message?')) {
+                deleteMessage(messageId);
+            }
+        });
+    });
+
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function () {
+            const messageId = this.getAttribute('data-message-id');
+            const messageContent = this.closest('.chat-message').querySelector('.message-badge').textContent;
+            editMessage(messageId, messageContent);
+        });
+    });
+});
+
+function deleteMessage(messageId) {
+    fetch(`/chat/message/${messageId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCsrfToken(), 
+        },
+    })
+        .then(response => {
+            if (response.ok) {
+                document.querySelector(`[data-message-id="${messageId}"]`).remove();
+            } else {
+                alert('Failed to delete message.');
+            }
+        })
+        .catch(err => console.error('Error deleting message:', err));
+}
+
+function editMessage(messageId, currentContent) {
+    const newContent = prompt('Edit your message:', currentContent);
+    if (newContent !== null) {
+        fetch(`/chat/message/${messageId}/edit/`, {
+            method: 'PUT',
+            headers: {
+                'X-CSRFToken': getCsrfToken(),
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: newContent }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    document.querySelector(`[data-message-id="${messageId}"] .message-badge`).textContent = newContent;
+                } else {
+                    alert('Failed to edit message.');
+                }
+            })
+            .catch(err => console.error('Error editing message:', err));
+    }
+}
+
+function getCsrfToken() {
+    return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
