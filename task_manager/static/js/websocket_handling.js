@@ -165,14 +165,17 @@ chatSocket.onopen = function(e) {
 //         updateChatLog(data.author, data.message, data.timestamp, isCurrentUser);
 //     }
 // };
-
+const cU = currentUsername;
+const cUId = currentUserId;
 chatSocket.onmessage = function (e) {
     const data = JSON.parse(e.data);
     console.log("WebSocket received data:", data);
+    const { author, author_id, content, msg_id, timestamp} = data.message;
 
-    if (data.action === "message") {
-        const isCurrentUser = data.author === currentUsername;
-        updateChatLog(data.author, data.message, data.timestamp, isCurrentUser);
+    if (data.action === "send") {
+        const isCurrentUser = author === cU;
+        // updateChatLog(data.author, data.message, data.timestamp, isCurrentUser, currentUserId, data.author_id, data.msg_id);
+        updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
     } else if (data.action === "edit") {
         const messageElement = document.querySelector(`[data-message-id="${data.message_id}"] .message-badge`);
         if (messageElement) {
@@ -181,12 +184,10 @@ chatSocket.onmessage = function (e) {
             console.warn(`Message with ID ${data.message_id} not found.`);
         }
     } else if (data.action === "delete") {
-        const messageContainer = document.querySelector(`[data-message-id="${data.message_id}"]`);
-        if (messageContainer) {
-            messageContainer.remove();
-        } else {
-            console.warn(`Message with ID ${data.message_id} not found.`);
-        }
+        const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
+        if (messageElement) {
+            messageElement.remove();
+        } 
     }
 };
 
@@ -202,76 +203,80 @@ function forceRepaint(element) {
     element.offsetHeight; // Trigger reflow
     element.style.display = '';
 }
-function updateChatLog(author, message, timestamp, isCurrentUser) {
+function updateChatLog(author, message, timestamp, isCurrentUser, currentUserId, authorId, messageId) {
     const chatLog = document.getElementById("chat-log");
 
     const messageContainer = document.createElement("div");
-    messageContainer.className = isCurrentUser ? "message-right" : "message-left";
-    messageContainer.setAttribute("data-message-id", `${timestamp}-${author}`); // Unique ID if message ID isn't available
-
+    messageContainer.className = `msg ${isCurrentUser ? "message-right" : "message-left"}`;
+    messageContainer.setAttribute("data-message-id", messageId);
+    messageContainer.setAttribute("data-is-own-message", isCurrentUser ? "true" : "false");
+    
     const messageDetails = `
         <p style="margin-top: 10pt;">
-            <b style="font-size: 11pt; padding-left: 5px !important;">${author}</b><br>
-            <span id="msg-date" style="padding-right: 5px;">${timestamp}:</span><br>
-            <span class="message-badge ${isCurrentUser ? "text-bg-success msgRight" : "text-bg-secondary msgLeft"}">
+            <b style="font-size: 11pt; padding-left: 5px;">${author}</b>
+            <span id="msg-date" style="padding-right: 5px;">${timestamp}</span><br>
+            <button id="message-container" type="button" class="btn message-badge ${isCurrentUser ? "btn-success msgRight" : "btn-secondary msgLeft"} position-relative" 
+                data-author-id="${authorId}" 
+                data-user-id="${currentUserId}" 
+                data-message-id="${messageId}">
                 ${message}
-            </span>
+            </button>
         </p>
-        ${isCurrentUser ? `
-        <div class="message-controls" style="display: none;">
-            <button class="btn btn-sm btn-primary edit-btn" data-message-id="${timestamp}-${author}">Edit</button>
-            <button class="btn btn-sm btn-danger delete-btn" data-message-id="${timestamp}-${author}">Delete</button>
-        </div>
-        ` : ""}
     `;
-    messageContainer.innerHTML = messageDetails;
+
     messageContainer.innerHTML = messageDetails;
     chatLog.appendChild(messageContainer);
 
-    // Scroll to bottom
     chatLog.scrollTop = chatLog.scrollHeight;
+    const button = messageContainer.querySelector('.btn.message-badge');
+    addHoverEventListener(button);
+}
 
-    // const chatLog = document.getElementById('chat-log');
+function addHoverEventListener(button) {
+    button.addEventListener('mouseover', () => {
+        const isOwnMessage = button.getAttribute('data-author-id') === button.getAttribute('data-user-id');
+        if (isOwnMessage && !button.querySelector('.delete-btn')) {
+            const deleteButton = document.createElement('a');
+            deleteButton.href = '#';
+            deleteButton.className = 'delete-btn position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary';
+            deleteButton.setAttribute('data-message-id', button.getAttribute('data-message-id'));
+            deleteButton.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                </svg>
+                <span class="visually-hidden">Delete message</span>
+            `;
+            deleteButton.addEventListener('click', function (e) {
+                e.preventDefault();
+                const messageId = this.getAttribute('data-message-id');
+                if (confirm('Are you sure you want to delete this message?')) {
+                    deleteMessage(messageId);
+                }
+            });
+            button.appendChild(deleteButton);
+        }
+    });
 
-    // const messageContainer = document.createElement('div');
-    // messageContainer.className = isCurrentUser ? 'message-right' : 'message-left';
-    // const messageDetails = document.createElement('p');
-    // messageDetails.style.marginTop = '10pt';
-
-    // const authorElement = document.createElement('b');
-    // authorElement.textContent = author;
-    // authorElement.style.fontSize = '11pt';
-    // authorElement.style.paddingLeft = '5px';
-    // messageDetails.appendChild(authorElement);
-
-    // const timestampElement = document.createElement('span');
-    // timestampElement.id = 'msg-date';
-    // timestampElement.textContent = `${timestamp}`;
-    // authorElement.style.paddingRight = '5px';
-    // messageDetails.appendChild(timestampElement);
-
-    // messageDetails.appendChild(document.createElement('br'));
-
-    // const messageBadge = document.createElement('span');
-    // messageBadge.className = `message-badge ${isCurrentUser ? 'text-bg-success msgRight' : 'text-bg-secondary msgLeft'}`;
-    // messageBadge.textContent = message;
-    // messageDetails.appendChild(messageBadge);
-
-    // messageContainer.appendChild(messageDetails);
-    // chatLog.appendChild(messageContainer);
-    // chatLog.scrollTop = chatLog.scrollHeight;
-
-
-    // forceRepaint(chatLog);
+    button.addEventListener('mouseleave', () => {
+        const deleteButton = button.querySelector('.delete-btn');
+        if (deleteButton) {
+            deleteButton.remove(); // Remove the delete button when the mouse leaves
+        }
+    });
 }
 
 
 
+
 document.querySelector('#chat-message-submit').onclick = function(e) {
+
     const messageInputDom = document.querySelector('#chat-message-input');
     const message = messageInputDom.value;
-    console.log('Sending message: ', message);
-    chatSocket.send(JSON.stringify({'message': message}));
+    chatSocket.send(JSON.stringify({
+        action: "send",
+        message: message
+    }));
+
     messageInputDom.value = '';
 };
 
@@ -302,28 +307,53 @@ inputBox.addEventListener('input', function () {
     this.style.height = this.scrollHeight + 'px';
 });
 
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const messageId = this.getAttribute('data-message-id');
-            if (confirm('Are you sure you want to delete this message?')) {
-                deleteMessage(messageId);
+document.addEventListener("DOMContentLoaded", () => {
+    const messageButtons = document.querySelectorAll('#chat-log .btn.message-badge');
+
+    messageButtons.forEach((button) => {
+        button.addEventListener('mouseover', () => {
+            const isOwnMessage = button.getAttribute('data-author-id') === button.getAttribute('data-user-id') ;
+            if (isOwnMessage && !button.querySelector('.delete-btn')) {
+                const deleteButton = document.createElement('a');
+                deleteButton.href = '#';
+                deleteButton.className = 'delete-btn position-absolute top-0 start-100 translate-middle badge rounded-pill bg-secondary';
+                deleteButton.setAttribute('data-message-id', button.getAttribute('data-message-id'));
+                deleteButton.innerHTML = `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                        <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5M11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47M8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5"/>
+                    </svg>
+                    <span class="visually-hidden">Delete message</span>
+                `;
+                deleteButton.addEventListener('click', function () {
+                    const messageId = this.getAttribute('data-message-id');
+                    if (confirm('Are you sure you want to delete this message?')) {
+                        deleteMessage(messageId);
+                    }
+                });
+                button.appendChild(deleteButton);
             }
         });
-    });
 
-    document.querySelectorAll('.edit-btn').forEach(button => {
-        button.addEventListener('click', function () {
-            const messageId = this.getAttribute('data-message-id');
-            const messageContent = this.closest('.chat-message').querySelector('.message-badge').textContent;
-            editMessage(messageId, messageContent);
+        // Add mouseleave event
+        button.addEventListener('mouseleave', () => {
+            const deleteButton = button.querySelector('.delete-btn');
+            if (deleteButton) {
+                deleteButton.remove(); // Remove the delete button when the mouse leaves
+            }
         });
     });
 });
 
+
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
 function deleteMessage(messageId) {
-    fetch(`/chat/message/${messageId}/delete/`, {
+    fetch(`/message/${messageId}/delete/`, {
         method: 'DELETE',
         headers: {
             'X-CSRFToken': getCsrfToken(), 
@@ -331,7 +361,12 @@ function deleteMessage(messageId) {
     })
         .then(response => {
             if (response.ok) {
-                document.querySelector(`[data-message-id="${messageId}"]`).remove();
+                const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
+                if (messageElement) {
+                    messageElement.remove();
+                } else {
+                    console.log("No such message");
+                }
             } else {
                 alert('Failed to delete message.');
             }

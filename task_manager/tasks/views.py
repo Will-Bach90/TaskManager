@@ -88,6 +88,7 @@ def chat(request, room_name):
         'room_name_json': json.dumps(room_name),  
         'messages': messages,  
         'current_user': request.user,
+        'current_user_id': request.user.id,
     })
 
 @csrf_exempt

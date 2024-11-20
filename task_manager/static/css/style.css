@@ -40,38 +40,17 @@ input[type="date"].form-control {
     margin-bottom: 10px;
 }
 
-.chat-message:hover .message-controls {
-    display: flex; /* Show buttons when hovered */
-    gap: 5px; /* Add spacing between buttons */
+/* .chat-message:hover .badge {
+    display: flex; 
 }
 
-.message-controls {
-    position: absolute;
+.badge {
+    /* position: absolute; */
     top: 5px;
     right: 5px;
-    display: none; /* Hidden by default */
-}
-
-/* .message-badge {
-    display: inline-block;
-    padding: 5px 15px;
-    font-size: 14px;
-    line-height: 1.1;
-    word-wrap: break-word; 
-    white-space: pre-wrap;
-    border-radius: 15px;
-    word-break: break-word;
-}
-
-.message-badge.text-bg-success {
-    background-color: #198754;
-    color: white;
-}
-
-.message-badge.text-bg-secondary {
-    background-color: #6c757d;
-    color: white;
+    /* display: none;  */
 } */
+
 .message-badge {
     display: inline-block;
     padding: 20px 25px;

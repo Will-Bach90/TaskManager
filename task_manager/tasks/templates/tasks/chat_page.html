@@ -6,22 +6,16 @@
         <div id="chat-log">
             {% for message in messages %}
             <div 
-            class="{% if message.author.id == request.user.id %}message-right{% else %}message-left{% endif %}" 
+            class="msg {% if message.author.id == request.user.id %}message-right{% else %}message-left{% endif %}" 
             data-message-id="{{ message.id }}" 
             data-is-own-message="{% if message.author.id == request.user.id %}true{% else %}false{% endif %}">
                 <p style="margin-top: 10pt;">
                     <b style="font-size: 11pt; padding-left: 5px;">{{ message.author.username }} </b>
                     <span id="msg-date" style="padding-right: 5px;">{{ message.timestamp|date:"m/d/Y H:iA" }}</span></br>
-                    <span class="message-badge {% if message.author == request.user %}text-bg-success msgRight {% else %}text-bg-secondary msgLeft{% endif %}">
+                    <button id="message-container" type="button" class="btn message-badge {% if message.author == request.user %}btn-success msgRight {% else %}btn-secondary msgLeft{% endif %} position-relative" data-author-id="{{ message.author.id }}" data-user-id="{{ request.user.id }}" data-message-id="{{ message.id }}">
                         {{ message.content }}
-                    </span>
+                    </button>
                 </p>
-                {% if message.author.id == request.user.id %}
-                <div class="message-controls" style="display: none;">
-                    <button class="btn btn-sm btn-primary edit-btn" data-message-id="{{ message.id }}">Edit</button>
-                    <button class="btn btn-sm btn-danger delete-btn" data-message-id="{{ message.id }}">Delete</button>
-                </div>
-                {% endif %}
             </div>
             {% endfor %}
         </div>
@@ -36,5 +30,6 @@
 <script type="text/javascript">
     var roomName = {{ room_name_json|safe }};
     const currentUsername = "{{ current_user|escapejs }}";
+    const currentUserId = "{{ current_user_id|escapejs }}";
 </script>
 {% endblock %}
