@@ -40,16 +40,43 @@ input[type="date"].form-control {
     margin-bottom: 10px;
 }
 
+.add-btn {
+    z-index: 1050; /* Ensure it's above other elements */
+    position: absolute; /* Ensure proper positioning */
+}
+
+.dropdown-menu {
+    min-width: 20px !important; /* Set the minimum width */
+    max-width: 50px !important; /* Optional: Limit maximum width */
+    width: auto; 
+}
+
+.top-25 {
+    top: 25%;
+}
+
+.top-35 {
+    top: 35%;
+  }
+  
+  .start-25 {
+    left: 25%;
+}
+
+  .start-75 {
+    left: 75%;
+}
+
 /* .chat-message:hover .badge {
     display: flex; 
 }
 
 .badge {
     /* position: absolute; */
-    top: 5px;
+    /* top: 5px;
     right: 5px;
-    /* display: none;  */
-} */
+    display: none;  */
+/* } */ */
 
 .message-badge {
     display: inline-block;

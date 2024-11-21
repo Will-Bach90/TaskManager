@@ -180,18 +180,18 @@ class ChatConsumer(AsyncWebsocketConsumer):
             message.content = new_content
             await database_sync_to_async(message.save)()
 
-            # Broadcast the updated message to the group
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    "type": "chat_message",
-                    "action": "edit",
-                    "message": json.dumps({
-                        "message_id": message_id,
-                        "new_content": new_content,
-                    }),
-                },
-            )
+            # # Broadcast the updated message to the group
+            # await self.channel_layer.group_send(
+            #     self.room_group_name,
+            #     {
+            #         "type": "chat_message",
+            #         "action": "edit",
+            #         "message": json.dumps({
+            #             "message_id": message_id,
+            #             "new_content": new_content,
+            #         }),
+            #     },
+            # )
         except Message.DoesNotExist:
             await self.send(text_data=json.dumps({"error": "Message not found or not editable by this user"}))
 

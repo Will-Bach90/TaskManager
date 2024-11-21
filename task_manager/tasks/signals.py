@@ -115,3 +115,27 @@ def announce_deleted_message(sender, instance, **kwargs):
             "message": json.dumps(prepared_message)
         }
     )
+
+@receiver(post_save, sender=Message)
+def announce_edited_message(sender, instance, **kwargs):
+    print("Signal handler for edit entered")
+    group_name = f'chat_{instance.room.name}'  # Dynamically get the room name
+    print("Group name for edit:", group_name)
+    channel_layer = get_channel_layer()
+
+    # Prepare deletion message
+    prepared_message = {
+        "msg_id": instance.id,
+        "author_id": instance.author.id,
+        "room_name": instance.room.name
+    }
+
+    # Send the deletion event to the WebSocket group
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {
+            "type": "chat_message",
+            "action": "edit",
+            "message": json.dumps(prepared_message)
+        }
+    )
