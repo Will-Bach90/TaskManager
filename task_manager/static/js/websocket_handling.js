@@ -458,6 +458,19 @@ function deleteMessage(messageId) {
         .catch(err => console.error('Error deleting message:', err));
 }
 
+// const messageDetails = `
+// <p style="margin-top: 10pt;">
+// <b style="font-size: 11pt; padding-left: 5px;">${author}</b>
+// <span id="msg-date" style="padding-right: 5px;">${timestamp}</span><br>
+// <button id="message-container" type="button" class="btn message-badge ${isCurrentUser ? "btn-success msgRight" : "btn-secondary msgLeft"} position-relative" 
+//     data-author-id="${authorId}" 
+//     data-user-id="${currentUserId}" 
+//     data-message-id="${messageId}">
+//     ${message}
+// </button>
+// </p>
+// `;
+
 function editMessage(messageId, currentContent) {
     const newContent = prompt('Edit your message:', currentContent);
     if (newContent !== null) {
@@ -471,7 +484,34 @@ function editMessage(messageId, currentContent) {
         })
             .then(response => {
                 if (response.ok) {
-                    document.querySelector(`[data-message-id="${msg_id}"]`).textContent = newContent;
+                    const msgP = document.querySelector(`[data-message-id="${messageId}"]`);
+                    if (msgP) {
+                        console.log('Located parent container:', msgP.innerText);
+    
+                        // Locate the button element specifically
+                        const button = msgP.querySelector('#message-container');
+                        if (button) {
+                            console.log('Located button:', button);
+    
+                            // Update only the text content inside the button
+                            button.textContent = newContent;
+    
+                            console.log('Updated button text:', button.textContent);
+                        } else {
+                            console.error('Button not found inside parent container.');
+                        }
+    
+                        // Restore scroll position
+                        const chatLog = document.querySelector('#chat-log');
+                        const savedScrollTop = localStorage.getItem('chatLogScrollTop');
+                        if (savedScrollTop !== null) {
+                            chatLog.scrollTop = savedScrollTop;
+                        } else {
+                            chatLog.scrollTop = chatLog.scrollHeight;
+                        }
+                    } else {
+                        console.error('Message container not found for message ID:', messageId);
+                    }
                 } else {
                     alert('Failed to edit message.');
                 }

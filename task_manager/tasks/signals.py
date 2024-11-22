@@ -125,9 +125,11 @@ def announce_edited_message(sender, instance, **kwargs):
 
     # Prepare deletion message
     prepared_message = {
-        "msg_id": instance.id,
-        "author_id": instance.author.id,
-        "room_name": instance.room.name
+        'author': instance.author.username,
+        'author_id': instance.author.id,
+        'content': instance.content,
+        'msg_id': instance.id,
+        'timestamp': instance.timestamp.strftime('%Y-%m-%d %H:%M:%S')
     }
 
     # Send the deletion event to the WebSocket group
