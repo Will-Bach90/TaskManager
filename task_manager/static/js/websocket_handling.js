@@ -489,14 +489,15 @@ function editMessage(messageId, currentContent) {
                         console.log('Located parent container:', msgP.innerText);
     
                         // Locate the button element specifically
-                        const button = msgP.querySelector('#message-container');
+                        const button = msgP.querySelector('.message-badge');
                         if (button) {
-                            console.log('Located button:', button);
+                            console.log('Located button:', button.innerHTML);
     
                             // Update only the text content inside the button
-                            button.textContent = newContent;
-    
-                            console.log('Updated button text:', button.textContent);
+                            clearTextAndKeepHTML(button);
+                            button.innerHTML = newContent + button.innerHTML;
+                            location.reload();
+                            console.log('Updated button text:', button.innerHTML);
                         } else {
                             console.error('Button not found inside parent container.');
                         }
@@ -522,4 +523,22 @@ function editMessage(messageId, currentContent) {
 
 function getCsrfToken() {
     return document.querySelector('[name=csrfmiddlewaretoken]').value;
+}
+
+function removeTextButKeepHTML(element) {
+    if (!element) return;
+
+    // Iterate over all child nodes of the element
+    Array.from(element.childNodes).forEach(node => {
+        if (node.nodeType === Node.TEXT_NODE) {
+            // Remove text node
+            node.remove();
+        }
+    });
+}
+
+function clearTextAndKeepHTML(element) {
+    const html = Array.from(element.children);
+    element.textContent = ""; // Clear all text
+    html.forEach(child => element.appendChild(child)); // Reinsert child elements
 }
