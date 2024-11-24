@@ -174,15 +174,8 @@ chatSocket.onmessage = function (e) {
 
     if (data.action === "send") {
         const isCurrentUser = author === cU;
-        // updateChatLog(data.author, data.message, data.timestamp, isCurrentUser, currentUserId, data.author_id, data.msg_id);
         updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
     } else if (data.action === "edit") {
-        // const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
-        // if (messageElement) {
-        //     messageElement.textContent = data.new_content;
-        // } else {
-        //     console.warn(`Message with ID ${data.message_id} not found.`);
-        // }
         const msgP = document.querySelector(`[data-message-id="${msg_id}"]`);
         if (msgP) {
             const button = msgP.querySelector('.message-badge');
@@ -284,7 +277,7 @@ function addHoverEventListener(button) {
                         </a>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="#">
+                        <a class="dropdown-item copy-btn" href="#">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
                                 <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
                             </svg>
@@ -299,7 +292,14 @@ function addHoverEventListener(button) {
                     </li>
                 </ul>
             `;
+
             button.appendChild(dropdownButton);
+            const copyBtn = button.querySelector('.copy-btn');
+            copyBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                const msgContent = button.textContent;
+                copyTextToClipboard(msgContent);
+            });
             const deleteBtn = button.querySelector('.del-btn');
             deleteBtn.setAttribute('data-message-id', button.getAttribute('data-message-id'));
             deleteBtn.addEventListener('click', function (e) {
@@ -338,9 +338,6 @@ function addHoverEventListener(button) {
                     deleteMessage(messageId);
                 });
 
-                // if (confirm('Are you sure you want to delete this message?')) {
-                //     deleteMessage(messageId);
-                // }
             });
 
             const editBtn = button.querySelector('.edit-btn');
@@ -355,7 +352,7 @@ function addHoverEventListener(button) {
                 newTextArea.className = 'form-floating';
                 newTextArea.style = "margin: -10px;";
                 newTextArea.innerHTML = `
-                    <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px"></textarea>
+                    <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px; width:600px;">${msgContent.trim()}</textarea>
                         <label for="floatingTextarea2">New Comment</label>
                     <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
                         <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
@@ -471,7 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item copy-btn" href="#">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-copy" viewBox="0 0 16 16">
                                         <path fill-rule="evenodd" d="M4 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1zM2 5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1h1v1a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h1v1z"/>
                                     </svg>
@@ -487,6 +484,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         </ul>
                 `;
                 button.appendChild(dropdownButton);
+
+                const copyBtn = button.querySelector('.copy-btn');
+                copyBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const msgContent = button.textContent;
+                    copyTextToClipboard(msgContent);
+                });
+
                 const deleteBtn = button.querySelector('.del-btn');
                 deleteBtn.setAttribute('data-message-id', button.getAttribute('data-message-id'));
                 deleteBtn.addEventListener('click', function (e) {
@@ -518,10 +523,6 @@ document.addEventListener("DOMContentLoaded", () => {
                         chatbox.removeChild(confirmCancelToast);
                         deleteMessage(messageId);
                     });
-
-                    // if (confirm('Are you sure you want to delete this message?')) {
-                    //     deleteMessage(messageId);
-                    // }
                 });
 
                 const editBtn = button.querySelector('.edit-btn');
@@ -536,7 +537,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     newTextArea.className = 'form-floating';
                     newTextArea.style = "margin: -10px;";
                     newTextArea.innerHTML = `
-                        <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px"></textarea>
+                        <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px; width: 600px;">${msgContent.trim()}</textarea>
                             <label for="floatingTextarea2">New Comment</label>
                         <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
                             <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
@@ -597,7 +598,7 @@ function deleteMessage(messageId) {
     })
         .then(response => {
             if (response.ok) {
-                const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
+                const messageElement = document.querySelector(`[data-message-id="${messageId}"]`);
                 if (messageElement) {
                     messageElement.remove();
                 } else {
@@ -609,19 +610,6 @@ function deleteMessage(messageId) {
         })
         .catch(err => console.error('Error deleting message:', err));
 }
-
-// const messageDetails = `
-// <p style="margin-top: 10pt;">
-// <b style="font-size: 11pt; padding-left: 5px;">${author}</b>
-// <span id="msg-date" style="padding-right: 5px;">${timestamp}</span><br>
-// <button id="message-container" type="button" class="btn message-badge ${isCurrentUser ? "btn-success msgRight" : "btn-secondary msgLeft"} position-relative" 
-//     data-author-id="${authorId}" 
-//     data-user-id="${currentUserId}" 
-//     data-message-id="${messageId}">
-//     ${message}
-// </button>
-// </p>
-// `;
 
 function editMessage(messageId, currentContent, newContent) {
     if (newContent !== null) {
@@ -689,3 +677,8 @@ function clearTextAndKeepHTML(element) {
     element.textContent = ""; // Clear all text
     html.forEach(child => element.appendChild(child)); // Reinsert child elements
 }
+
+
+function copyTextToClipboard(text) {
+    navigator.clipboard.writeText(text.trim());
+}  
