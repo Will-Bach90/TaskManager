@@ -267,7 +267,7 @@ function addHoverEventListener(button) {
         const isOwnMessage = button.getAttribute('data-author-id') === button.getAttribute('data-user-id');
         if (isOwnMessage && !button.querySelector('.add-btn')) {
             const dropdownButton = document.createElement('div');
-            dropdownButton.className = 'add-btn position-absolute top-0 start-100 translate-middle';
+            dropdownButton.className = 'add-btn position-absolute top-0 start-100 translate-middle dropstart';
             dropdownButton.setAttribute('data-message-id', button.getAttribute('data-message-id'));
             dropdownButton.innerHTML = `
                     <button class="btn btn-sm btn-secondary badge bg-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -454,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const isOwnMessage = button.getAttribute('data-author-id') === button.getAttribute('data-user-id') ;
             if (isOwnMessage && !button.querySelector('.add-btn')) {
                 const dropdownButton = document.createElement('div');
-                dropdownButton.className = 'add-btn position-absolute top-0 start-100 translate-middle';
+                dropdownButton.className = 'add-btn position-absolute top-0 start-100 translate-middle dropstart';
                 dropdownButton.setAttribute('data-message-id', button.getAttribute('data-message-id'));
                 dropdownButton.innerHTML = `
                         <button class="btn btn-sm btn-secondary badge bg-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -495,9 +495,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                     const confirmCancelToast = document.createElement('div');
                     confirmCancelToast.className = 'toast-container p-3 top-50 start-50 translate-middle';
-                    // confirmCancelToast.ariaRoleDescription = "alert";
-                    // confirmCancelToast.ariaLive = "assertive";
-                    // confirmCancelToast.ariaAtomic = "true";
                     confirmCancelToast.innerHTML = `
                         <div class="toast fade show">
                         <div class="toast-header">
