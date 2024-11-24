@@ -177,11 +177,31 @@ chatSocket.onmessage = function (e) {
         // updateChatLog(data.author, data.message, data.timestamp, isCurrentUser, currentUserId, data.author_id, data.msg_id);
         updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
     } else if (data.action === "edit") {
-        const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
-        if (messageElement) {
-            messageElement.textContent = data.new_content;
+        // const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
+        // if (messageElement) {
+        //     messageElement.textContent = data.new_content;
+        // } else {
+        //     console.warn(`Message with ID ${data.message_id} not found.`);
+        // }
+        const msgP = document.querySelector(`[data-message-id="${msg_id}"]`);
+        if (msgP) {
+            const button = msgP.querySelector('.message-badge');
+            if (button) {
+                button.innerHTML = content;
+            } else {
+                console.error('Button not found inside parent container.');
+            }
+
+            // Restore scroll position
+            const chatLog = document.querySelector('#chat-log');
+            const savedScrollTop = localStorage.getItem('chatLogScrollTop');
+            if (savedScrollTop !== null) {
+                chatLog.scrollTop = savedScrollTop;
+            } else {
+                chatLog.scrollTop = chatLog.scrollHeight;
+            }
         } else {
-            console.warn(`Message with ID ${data.message_id} not found.`);
+            console.error('Message container not found for message ID:', messageId);
         }
     } else if (data.action === "delete") {
         const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
@@ -210,11 +230,21 @@ function updateChatLog(author, message, timestamp, isCurrentUser, currentUserId,
     messageContainer.className = `msg ${isCurrentUser ? "message-right" : "message-left"}`;
     messageContainer.setAttribute("data-message-id", messageId);
     messageContainer.setAttribute("data-is-own-message", isCurrentUser ? "true" : "false");
+
+    const rawTimestamp = timestamp;
+    const formattedTimestamp = new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+    }).format(new Date(rawTimestamp));
     
     const messageDetails = `
         <p style="margin-top: 10pt;">
             <b style="font-size: 11pt; padding-left: 5px;">${author}</b>
-            <span id="msg-date" style="padding-right: 5px;">${timestamp}</span><br>
+            <span id="msg-date" style="padding-right: 5px;">${formattedTimestamp}</span><br>
             <button id="message-container" type="button" class="btn message-badge ${isCurrentUser ? "btn-success msgRight" : "btn-secondary msgLeft"} position-relative" 
                 data-author-id="${authorId}" 
                 data-user-id="${currentUserId}" 
@@ -275,9 +305,42 @@ function addHoverEventListener(button) {
             deleteBtn.addEventListener('click', function (e) {
                 e.preventDefault();
                 const messageId = this.getAttribute('data-message-id');
-                if (confirm('Are you sure you want to delete this message?')) {
+
+
+                const confirmCancelToast = document.createElement('div');
+                confirmCancelToast.className = 'toast-container p-3 top-50 start-50 translate-middle';
+                // confirmCancelToast.ariaRoleDescription = "alert";
+                // confirmCancelToast.ariaLive = "assertive";
+                // confirmCancelToast.ariaAtomic = "true";
+                confirmCancelToast.innerHTML = `
+                    <div class="toast fade show">
+                    <div class="toast-header">
+                    Are you sure you want to delete this message?
+                    </div>
+                    <div class="toast-body">
+                        <div class="mt-2 pt-2">
+                            <button type="button" class="btn btn-primary btn-sm confirm-delete">Ok</button>
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Cancel</button>
+                        </div>
+                    </div>
+                    </div>
+                `;
+
+                
+                const chatbox = document.querySelector('#chat-page');
+                chatbox.appendChild(confirmCancelToast);
+                const toastBootstrap = bootstrap.Toast.getOrCreateInstance(confirmCancelToast);
+                toastBootstrap.show();
+                const confirmDelete = chatbox.querySelector('.confirm-delete');
+                confirmDelete.addEventListener('click', function (e){
+                    e.preventDefault();
+                    chatbox.removeChild(confirmCancelToast);
                     deleteMessage(messageId);
-                }
+                });
+
+                // if (confirm('Are you sure you want to delete this message?')) {
+                //     deleteMessage(messageId);
+                // }
             });
 
             const editBtn = button.querySelector('.edit-btn');
@@ -287,9 +350,40 @@ function addHoverEventListener(button) {
                 const messageId = this.getAttribute('data-message-id');
                 console.log(messageId);
                 const msgContent = button.textContent;
-                if (confirm('Are you sure you want to delete this message?')) {
-                    editMessage(messageId, msgContent);
-                }
+                button.textContent = "";
+                const newTextArea = document.createElement('div');
+                newTextArea.className = 'form-floating';
+                newTextArea.style = "margin: -10px;";
+                newTextArea.innerHTML = `
+                    <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px"></textarea>
+                        <label for="floatingTextarea2">New Comment</label>
+                    <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
+                        <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
+                        <button class="btn btn-sm btn-dark new-msg-cancel" type="button">Cancel</button>
+                      </div>
+                `;
+                button.appendChild(newTextArea);
+                button.classList.remove('btn-success');
+                button.classList.add('btn-light');
+
+                const cancelBtn = button.querySelector('.new-msg-cancel');
+                cancelBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    button.removeChild(newTextArea);
+                    button.textContent = msgContent;
+                    button.classList.remove('btn-light');
+                    button.classList.add('btn-success');
+                });
+
+                const saveBtn = button.querySelector('.new-msg-save');
+                saveBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const newMsgContent = newTextArea.querySelector('#floatingTextarea2').value;
+                    button.removeChild(newTextArea);
+                    button.classList.remove('btn-light');
+                    button.classList.add('btn-success');
+                    editMessage(messageId, msgContent, newMsgContent);
+                });
             });
         }
 
@@ -398,9 +492,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 deleteBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const messageId = this.getAttribute('data-message-id');
-                    if (confirm('Are you sure you want to delete this message?')) {
+
+                    const confirmCancelToast = document.createElement('div');
+                    confirmCancelToast.className = 'toast-container p-3 top-50 start-50 translate-middle';
+                    // confirmCancelToast.ariaRoleDescription = "alert";
+                    // confirmCancelToast.ariaLive = "assertive";
+                    // confirmCancelToast.ariaAtomic = "true";
+                    confirmCancelToast.innerHTML = `
+                        <div class="toast fade show">
+                        <div class="toast-header">
+                        Are you sure you want to delete this message?
+                        </div>
+                        <div class="toast-body">
+                            <div class="mt-2 pt-2">
+                                <button type="button" class="btn btn-primary btn-sm confirm-delete">Ok</button>
+                                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="toast">Cancel</button>
+                            </div>
+                        </div>
+                        </div>
+                    `;
+                    const chatbox = document.querySelector('#chat-page');
+                    chatbox.appendChild(confirmCancelToast);
+                    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(confirmCancelToast);
+                    toastBootstrap.show();
+                    const confirmDelete = chatbox.querySelector('.confirm-delete');
+                    confirmDelete.addEventListener('click', function (e){
+                        e.preventDefault();
+                        chatbox.removeChild(confirmCancelToast);
                         deleteMessage(messageId);
-                    }
+                    });
+
+                    // if (confirm('Are you sure you want to delete this message?')) {
+                    //     deleteMessage(messageId);
+                    // }
                 });
 
                 const editBtn = button.querySelector('.edit-btn');
@@ -410,9 +534,40 @@ document.addEventListener("DOMContentLoaded", () => {
                     const messageId = this.getAttribute('data-message-id');
                     console.log(messageId);
                     const msgContent = button.textContent;
-                    if (confirm('Are you sure you want to edit this message?')) {
-                        editMessage(messageId, msgContent);
-                    }
+                    button.textContent = "";
+                    const newTextArea = document.createElement('div');
+                    newTextArea.className = 'form-floating';
+                    newTextArea.style = "margin: -10px;";
+                    newTextArea.innerHTML = `
+                        <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px"></textarea>
+                            <label for="floatingTextarea2">New Comment</label>
+                        <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
+                            <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
+                            <button class="btn btn-sm btn-dark new-msg-cancel" type="button">Cancel</button>
+                          </div>
+                    `;
+                    button.appendChild(newTextArea);
+                    button.classList.remove('btn-success');
+                    button.classList.add('btn-light');
+
+                    const cancelBtn = button.querySelector('.new-msg-cancel');
+                    cancelBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        button.removeChild(newTextArea);
+                        button.textContent = msgContent;
+                        button.classList.remove('btn-light');
+                        button.classList.add('btn-success');
+                    });
+
+                    const saveBtn = button.querySelector('.new-msg-save');
+                    saveBtn.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const newMsgContent = newTextArea.querySelector('#floatingTextarea2').value;
+                        button.removeChild(newTextArea);
+                        button.classList.remove('btn-light');
+                        button.classList.add('btn-success');
+                        editMessage(messageId, msgContent, newMsgContent);
+                    });
                 });
             }
         });
@@ -471,8 +626,7 @@ function deleteMessage(messageId) {
 // </p>
 // `;
 
-function editMessage(messageId, currentContent) {
-    const newContent = prompt('Edit your message:', currentContent);
+function editMessage(messageId, currentContent, newContent) {
     if (newContent !== null) {
         fetch(`/message/${messageId}/edit/`, {
             method: 'PUT',
@@ -486,18 +640,14 @@ function editMessage(messageId, currentContent) {
                 if (response.ok) {
                     const msgP = document.querySelector(`[data-message-id="${messageId}"]`);
                     if (msgP) {
-                        console.log('Located parent container:', msgP.innerText);
     
                         // Locate the button element specifically
                         const button = msgP.querySelector('.message-badge');
                         if (button) {
-                            console.log('Located button:', button.innerHTML);
     
-                            // Update only the text content inside the button
                             clearTextAndKeepHTML(button);
                             button.innerHTML = newContent + button.innerHTML;
-                            location.reload();
-                            console.log('Updated button text:', button.innerHTML);
+                            // location.reload();
                         } else {
                             console.error('Button not found inside parent container.');
                         }
