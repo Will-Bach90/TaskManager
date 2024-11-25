@@ -3,7 +3,8 @@
 {% block content %}
 <div class="container" id="chat-page">
     <div class="row">
-        <div id="chat-log">
+        <div class="col-2"></div>
+        <div class="col-8" id="chat-log">
             {% for message in messages %}
             <div 
             class="msg {% if message.author.id == request.user.id %}message-right{% else %}message-left{% endif %}" 
@@ -19,12 +20,26 @@
             </div>
             {% endfor %}
         </div>
+        <div class="col-2"></div>
     </div>
-    <div class="row mb-1">
-        <textarea id="chat-message-input" rows="1" placeholder="Type your message..."></textarea>
-    </div>
-    <div class="row">
-        <input class="btn btn-primary" id="chat-message-submit" type="button" value="Send">
+    <div class="row mt-1">
+        <div class="col-2"></div>
+        <div class="col-8 p-10 px-0 mx-0">
+            <div class="d-flex flex-row mb-3">
+                <button class="btn px-0 mx-0 flex-shrink-1 align-self-start" id="add-more-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+                      </svg>
+                </button>
+                <textarea class="align-self-start mx-0 w-100" id="chat-message-input" rows="1" placeholder="Type your message..."></textarea>
+                <button class="btn btn-primary px-0 mx-0 flex-shrink-1 align-self-start" id="chat-message-submit" type="button" value="Send">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
+                        <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="col-2"></div>
     </div>
 </div>
 <script type="text/javascript">

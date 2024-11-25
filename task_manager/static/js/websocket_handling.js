@@ -175,6 +175,8 @@ chatSocket.onmessage = function (e) {
     if (data.action === "send") {
         const isCurrentUser = author === cU;
         updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
+        const chatLog = document.querySelector('#chat-log');
+        chatLog.scrollTop = chatLog.scrollHeight;
     } else if (data.action === "edit") {
         const msgP = document.querySelector(`[data-message-id="${msg_id}"]`);
         if (msgP) {
@@ -185,14 +187,10 @@ chatSocket.onmessage = function (e) {
                 console.error('Button not found inside parent container.');
             }
 
-            // Restore scroll position
             const chatLog = document.querySelector('#chat-log');
-            const savedScrollTop = localStorage.getItem('chatLogScrollTop');
-            if (savedScrollTop !== null) {
-                chatLog.scrollTop = savedScrollTop;
-            } else {
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }
+
+            chatLog.scrollTop = chatLog.scrollHeight;
+            // }
         } else {
             console.error('Message container not found for message ID:', messageId);
         }
@@ -346,13 +344,15 @@ function addHoverEventListener(button) {
                 e.preventDefault();
                 const messageId = this.getAttribute('data-message-id');
                 console.log(messageId);
+                button.parentElement.parentElement.classList.add('w-75');
+                button.classList.add('w-100');
                 const msgContent = button.textContent;
                 button.textContent = "";
                 const newTextArea = document.createElement('div');
                 newTextArea.className = 'form-floating';
                 newTextArea.style = "margin: -10px;";
                 newTextArea.innerHTML = `
-                    <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px; width:600px;">${msgContent.trim()}</textarea>
+                    <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px;">${msgContent.trim()}</textarea>
                         <label for="floatingTextarea2">New Comment</label>
                     <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
                         <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
@@ -370,6 +370,8 @@ function addHoverEventListener(button) {
                     button.textContent = msgContent;
                     button.classList.remove('btn-light');
                     button.classList.add('btn-success');
+                    button.parentElement.parentElement.classList.remove('w-75');
+                    button.classList.remove('w-100');
                 });
 
                 const saveBtn = button.querySelector('.new-msg-save');
@@ -379,6 +381,8 @@ function addHoverEventListener(button) {
                     button.removeChild(newTextArea);
                     button.classList.remove('btn-light');
                     button.classList.add('btn-success');
+                    button.parentElement.parentElement.classList.remove('w-75');
+                    button.classList.remove('w-100');
                     editMessage(messageId, msgContent, newMsgContent);
                 });
             });
@@ -530,6 +534,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 editBtn.addEventListener('click', function (e) {
                     e.preventDefault();
                     const messageId = this.getAttribute('data-message-id');
+                    button.parentElement.parentElement.classList.add('w-75');
+                    button.classList.add('w-100');
                     console.log(messageId);
                     const msgContent = button.textContent;
                     button.textContent = "";
@@ -537,7 +543,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     newTextArea.className = 'form-floating';
                     newTextArea.style = "margin: -10px;";
                     newTextArea.innerHTML = `
-                        <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px; width: 600px;">${msgContent.trim()}</textarea>
+                        <textarea class="form-control" placeholder="${msgContent}" id="floatingTextarea2" style="height: 100px;">${msgContent.trim()}</textarea>
                             <label for="floatingTextarea2">New Comment</label>
                         <div class="d-grid gap-1 d-md-flex justify-content-md-end mt-1">
                             <button class="btn btn-sm btn-secondary new-msg-save" type="button">Save</button>
@@ -555,6 +561,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         button.textContent = msgContent;
                         button.classList.remove('btn-light');
                         button.classList.add('btn-success');
+                        button.parentElement.parentElement.classList.remove('w-75');
+                        button.classList.remove('w-100');
                     });
 
                     const saveBtn = button.querySelector('.new-msg-save');
@@ -564,6 +572,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         button.removeChild(newTextArea);
                         button.classList.remove('btn-light');
                         button.classList.add('btn-success');
+                        button.parentElement.parentElement.classList.remove('w-75');
+                        button.classList.remove('w-100');
                         editMessage(messageId, msgContent, newMsgContent);
                     });
                 });
