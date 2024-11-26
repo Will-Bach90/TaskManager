@@ -8,6 +8,7 @@ from .models import Project, Task, Message, ChatRoom
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
 class HomeView(RedirectView):
     url = reverse_lazy('project_list')
@@ -74,6 +75,10 @@ class TaskDeleteView(DeleteView):
 
 
 ##################################################################################################################
+@login_required
+def UserProfile(request):
+    return render(request, 'tasks/user_profile_page.html')
+
 ##################################################################################################################
 
 # def chat(request, room_name):

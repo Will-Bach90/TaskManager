@@ -8,3 +8,7 @@ class TasksConfig(AppConfig):
     def ready(self):
         logger.info("Importing task signals")
         import tasks.signals 
+
+class UserConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'users'

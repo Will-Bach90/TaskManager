@@ -12,6 +12,7 @@ psycopg2 = "*"
 channels-redis = "*"
 whitenoise = "*"
 uvicorn = {extras = ["standard"], version = "*"}
+pillow = "*"
 
 [dev-packages]
 

@@ -2,10 +2,11 @@
 
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from .models import Task, Project, Message
+from .models import Task, Project, Message, UserProfile
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
+from django.contrib.auth.models import User
 
 @receiver(post_save, sender=Task)
 def announce_task_save(sender, instance, created, **kwargs):
@@ -141,3 +142,13 @@ def announce_edited_message(sender, instance, **kwargs):
             "message": json.dumps(prepared_message)
         }
     )
+
+@receiver(post_save, sender=User)
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_profile(sender, instance, **kwargs):
+    instance.profile.save()
