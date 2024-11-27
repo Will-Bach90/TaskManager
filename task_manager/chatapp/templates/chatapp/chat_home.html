@@ -1,0 +1,24 @@
+<!-- tasks/templates/tasks/project_list.html -->
+{% extends "task_manager/base.html" %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <h1 class="ps-3 pt-3">Chat History</h1>
+        </div>
+        <div class="list-group w-50">
+            {% for room in object_list %}
+                    <a href="{% url 'chatapp:chat' room_name=room.name %}" class="list-group-item list-group-item-action" aria-current="true">
+                    <div class="d-flex w-25 justify-content-between">
+                        <h5 class="mb-1">{{ room.name }}</h5>
+                        <small>{{ room.created_at }}</small>
+                    </div>
+                    <p class="mb-1"></p>
+                    <small></small>
+                    </a>
+            {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}

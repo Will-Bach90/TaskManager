@@ -48,3 +48,7 @@
     const currentUserId = "{{ current_user_id|escapejs }}";
 </script>
 {% endblock %}
+{% load static %} 
+{% block scripts %}
+<script src="{% static 'js/chat_handling.js' %}"></script>
+{% endblock %}

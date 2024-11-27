@@ -14,3 +14,7 @@
 <a href="{% url 'tasks_app:task_edit' task.id %}">Edit Task</a> |
 <a href="{% url 'tasks_app:task_delete' task.id %}">Delete Task</a>
 {% endblock %}
+{% load static %} 
+{% block scripts %}
+<script src="{% static 'js/websocket_handling.js' %}"></script>
+{% endblock %}

@@ -11,8 +11,9 @@ python-dotenv = "*"
 psycopg2 = "*"
 channels-redis = "*"
 whitenoise = "*"
-uvicorn = {extras = ["standard"], version = "*"}
+uvicorn = "*"
 pillow = "*"
+websockets = "*"
 
 [dev-packages]
 

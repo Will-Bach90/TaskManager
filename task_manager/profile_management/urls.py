@@ -7,4 +7,6 @@ app_name = 'user_profile_app'
 
 urlpatterns = [
     path('', views.UserProfile, name='profile'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+#  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

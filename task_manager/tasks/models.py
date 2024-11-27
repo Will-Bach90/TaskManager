@@ -15,32 +15,3 @@ class Task(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     due_date = models.DateTimeField(default=datetime.datetime.now)
     is_completed = models.BooleanField(default=False)
-
-# class UserProfile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     bio = models.TextField(blank=True)
-#     avatar = models.ImageField(default='default.jpg', upload_to='profile_images')
-#     def __str__(self):
-#         return self.user.username
-
-
-class ChatRoom(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    # def __str__(self):
-    #     return self.name
-
-class Message(models.Model):
-    room = models.ForeignKey(ChatRoom, related_name='messages', on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
-    # is_edited = models.BooleanField(default=False)
-    # editTimestamp = models.DateTimeField(null=True, blank=True)
-    # def edit_message(self, new_content):
-    #     if self.content != new_content: 
-    #         self.content = new_content
-    #         self.is_edited = True
-    #         self.edit_timestamp = datetime.datetime.now()
-    #         self.save()

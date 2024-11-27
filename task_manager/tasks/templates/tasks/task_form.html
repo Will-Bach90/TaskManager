@@ -50,3 +50,7 @@
     </script>
 </div>
 {% endblock %}
+{% load static %} 
+{% block scripts %}
+<script src="{% static 'js/websocket_handling.js' %}"></script>
+{% endblock %}

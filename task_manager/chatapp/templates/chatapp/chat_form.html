@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container p-2">
     <div class="row">
-        <h2>{% if object %}Edit Project{% else %}Create Project{% endif %}</h2>
+        <h2>New Chat</h2>
     </div>
     <form method="post" class="form">
         {% csrf_token %}
@@ -12,10 +12,6 @@
         <div class="form-group">
             <label for="{{ field.id_for_label }}">{{ field.label }}</label>
             {{ field|add_class:"form-control" }}
-            {% if field.help_text %}
-            <small class="form-text text-muted">{{ field.help_text }}</small>
-            {% endif %}
-            {{ field.errors }}
         </div>
         {% endfor %}
         <div class="pt-2">
@@ -28,5 +24,5 @@
 {% endblock %}
 {% load static %} 
 {% block scripts %}
-<script src="{% static 'js/websocket_handling.js' %}"></script>
+<script src="{% static 'js/chat_handling.js' %}"></script>
 {% endblock %}
