@@ -167,3 +167,13 @@ input[type="date"].form-control {
     font-size: 8pt;
     color: rgba(120, 120, 120, 0.8);
 }
+
+
+#edit-button {
+    border-radius: 30px;
+}
+
+#exit-password-button {
+    border-radius: 30px;
+    background-color: white;
+}
