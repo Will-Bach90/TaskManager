@@ -1,5 +1,5 @@
 <!-- tasks/templates/tasks/task_detail.html -->
-{% extends "base.html" %}
+{% extends "task_manager/base.html" %}
 
 {% block content %}
 <h1>{{ task.title }}</h1>
@@ -11,6 +11,6 @@
     <strong>Last Updated:</strong> {{ task.updated_at }}<br>
 </div>
 
-<a href="{% url 'task_edit' task.id %}">Edit Task</a> |
-<a href="{% url 'task_delete' task.id %}">Delete Task</a>
+<a href="{% url 'tasks_app:task_edit' task.id %}">Edit Task</a> |
+<a href="{% url 'tasks_app:task_delete' task.id %}">Delete Task</a>
 {% endblock %}

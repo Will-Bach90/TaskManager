@@ -1,5 +1,5 @@
 <!-- tasks/templates/tasks/project_list.html -->
-{% extends "base.html" %}
+{% extends "task_manager/base.html" %}
 
 {% block content %}
 
@@ -13,14 +13,14 @@
                 <div class="card-body">
                 <h5 class="card-title">{{ project.name }}</h5>
                 <p class="card-text">{{ project.description|slice:":100" }}{% if project.description|length > 100 %}...{% endif %}</p>
-                <a href="{% url 'project_detail' project.id %}" class="btn btn-primary">More</a>
+                <a href="{% url 'tasks_app:project_detail' project.id %}" class="btn btn-primary">More</a>
                 </div>
             </div>
         {% endfor %}
         </div>
     <div class="row">
         <div class="ps-3 p-3">
-               <a type="button" class="btn btn-success" href="{% url 'project_create' %}">New Project</a> 
+               <a type="button" class="btn btn-success" href="{% url 'tasks_app:project_create' %}">New Project</a> 
         </div>
     </div>
     </div>

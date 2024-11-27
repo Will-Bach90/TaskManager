@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "task_manager/base.html" %}
 
 {% block content %}
 <div class="container">
@@ -9,7 +9,7 @@
         <form method="post">
             {% csrf_token %}
             <button type="submit" class="btn btn-danger">Confirm Delete</button>
-            <a href="{% url 'project_list' %}" class="btn btn-secondary">Cancel</a>
+            <a href="{% url 'tasks_app:project_list' %}" class="btn btn-secondary">Cancel</a>
         </form>
     </div>
 </div>

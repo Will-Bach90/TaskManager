@@ -1,11 +1,11 @@
-{% extends "base.html" %}
+{% extends "task_manager/base.html" %}
 
 {% block content %}
 <div class="container">
     <h1 class="pt-3 pb-3">{{ project.name }}</h1>
     <p>Description: {{ project.description }}</p>
-    <a href="{% url 'project_edit' project.id %}">Edit Project</a> |
-    <a href="{% url 'project_delete' project.id %}">Delete Project</a>
+    <a href="{% url 'tasks_app:project_edit' project.id %}">Edit Project</a> |
+    <a href="{% url 'tasks_app:project_delete' project.id %}">Delete Project</a>
 </div>
 
 <div class="container">
@@ -23,11 +23,11 @@
                       {{ task.due_date }}
                     </small>
                   </span>
-                  <a href="{% url 'task_delete' task.id %}" class="btn btn-danger pb-0">Delete</a>
+                  <a href="{% url 'tasks_app:task_delete' task.id %}" class="btn btn-danger pb-0">Delete</a>
                 </label>
         {% endfor %}
     </div>
-    <a href="{% url 'task_create' project.id %}">Add New Task</a>
+    <a href="{% url 'tasks_app:task_create' project.id %}">Add New Task</a>
 </div>
 
 {% endblock %}

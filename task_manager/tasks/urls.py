@@ -1,8 +1,9 @@
 from django.urls import path
 from django.conf import settings
 from django.contrib.auth import views as auth_views
-from django.conf.urls.static import static
 from . import views
+
+app_name = 'tasks_app'
 
 urlpatterns = [
     # URL for listing all projects
@@ -34,5 +35,4 @@ urlpatterns = [
     path('message/<int:message_id>/delete/', views.delete_message, name='delete_message'),
     path('message/<int:message_id>/edit/', views.edit_message, name='edit_message'),
 
-    path('profile/', views.UserProfile, name='profile'),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]

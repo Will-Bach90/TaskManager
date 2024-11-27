@@ -16,12 +16,12 @@ class Task(models.Model):
     due_date = models.DateTimeField(default=datetime.datetime.now)
     is_completed = models.BooleanField(default=False)
 
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    bio = models.TextField(blank=True)
-    avatar = models.ImageField(default='default.jpg', upload_to='profile_images')
-    def __str__(self):
-        return self.user.username
+# class UserProfile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     bio = models.TextField(blank=True)
+#     avatar = models.ImageField(default='default.jpg', upload_to='profile_images')
+#     def __str__(self):
+#         return self.user.username
 
 
 class ChatRoom(models.Model):

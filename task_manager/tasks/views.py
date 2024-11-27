@@ -11,7 +11,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 
 class HomeView(RedirectView):
-    url = reverse_lazy('project_list')
+    url = reverse_lazy('tasks_app:project_list')
 
 class ProjectListView(ListView):
     model = Project
@@ -57,27 +57,24 @@ class TaskCreateView(CreateView):
     form_class = TaskForm
     template_name = 'tasks/task_form.html'
     def get_success_url(self):
-        return reverse('project_detail', kwargs={'pk': self.object.project.id})
+        return reverse('tasks_app:project_detail', kwargs={'pk': self.object.project.id})
 
 class TaskUpdateView(UpdateView):
     model = Task
     fields = ['title', 'description', 'project', 'assigned_to', 'due_date', 'is_completed']
     template_name = 'tasks/task_form.html'
     def get_success_url(self):
-        return reverse('project_detail', kwargs={'pk': self.object.project.id})
+        return reverse('tasks_app:project_detail', kwargs={'pk': self.object.project.id})
 
 class TaskDeleteView(DeleteView):
     model = Task
     fields = ['title', 'project']
     template_name = 'tasks/task_confirm_delete.html'
     def get_success_url(self):
-        return reverse('project_detail', kwargs={'pk': self.object.project.id})
+        return reverse('tasks_app:project_detail', kwargs={'pk': self.object.project.id})
 
 
 ##################################################################################################################
-@login_required
-def UserProfile(request):
-    return render(request, 'tasks/user_profile_page.html')
 
 ##################################################################################################################
 
