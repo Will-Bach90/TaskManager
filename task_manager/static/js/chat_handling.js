@@ -70,14 +70,14 @@ function updateChatLog(author, message, timestamp, isCurrentUser, currentUserId,
     
     const messageDetails = `
         <p style="margin-top: 10pt;">
-            <b style="font-size: 11pt; padding-left: 5px;">${author}</b>
-            <span id="msg-date" style="padding-right: 5px;">${formattedTimestamp}</span><br>
+            <b style="font-size: 11pt; padding-left: 5px;">${author}</b><br>
             <button id="message-container" type="button" class="btn message-badge ${isCurrentUser ? "btn-success msgRight" : "btn-secondary msgLeft"} position-relative" 
                 data-author-id="${authorId}" 
                 data-user-id="${currentUserId}" 
                 data-message-id="${messageId}">
                 ${message}
-            </button>
+            </button><br>
+            <span id="msg-date" style="padding-right: 5px;">${formattedTimestamp}</span>
         </p>
     `;
 

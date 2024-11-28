@@ -2,6 +2,14 @@ input[type="date"].form-control {
     appearance: auto;
 }
 
+body {
+    background-color: rgb(2, 140, 194) !important;
+}
+
+.navbar {
+    background-color: rgb(1, 66, 92) !important;
+}
+
 #chat-log {
     height: 500px; 
     overflow-y: scroll; 
@@ -116,7 +124,8 @@ input[type="date"].form-control {
 #chat-message-input {
     border: 1px solid rgba(161, 161, 161, 0.2); 
     padding: 10px;
-    border-radius: 20px;
+    padding-left: 20px;
+    border-radius: 30px;
     word-wrap: break-word !important;
     word-break: break-word !important;
     resize: none;
@@ -137,10 +146,10 @@ input[type="date"].form-control {
 } */
 
 #chat-message-submit {
-    min-width: 45px;
+    width: 54px;
     height: 45px;
     border-radius: 30px;
-    background-color: rgb(13, 109, 205) !important;
+    background-color: rgb(67, 225, 217) !important;
     border: none;
     /* margin-bottom: 36px !important; */
     margin-left: 0px !important;
@@ -148,7 +157,7 @@ input[type="date"].form-control {
 }
 
 #chat-message-submit:hover {
-    background-color: rgb(11, 70, 129) !important;
+    background-color: rgb(48, 152, 147) !important;
 }
 
 #add-more-btn {

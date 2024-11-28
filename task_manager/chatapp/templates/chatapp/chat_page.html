@@ -15,7 +15,7 @@
                     <button id="message-container" type="button" class="btn message-badge {% if message.author == request.user %}btn-success msgRight {% else %}btn-secondary msgLeft{% endif %} position-relative" data-author-id="{{ message.author.id }}" data-user-id="{{ request.user.id }}" data-message-id="{{ message.id }}">
                         {{ message.content }}
                     </button> </br>
-                    <span id="msg-date" style="padding-right: 5px;">{% if message.is_edited %} <i>Edited: {{ message.editTimestamp|date:"m/d/Y H:iA" }}</i> {% else %} {{ message.timestamp|date:"m/d/Y H:iA" }} {% endif %}</span></br>
+                    <span id="msg-date" style="padding-right: 5px;">{% if message.is_edited %} <i>Edited: {{ message.editTimestamp|date:"m/d/Y h:iA" }}</i> {% else %} {{ message.timestamp|date:"m/d/Y h:iA" }} {% endif %}</span></br>
                 </p>
             </div>
             {% endfor %}
@@ -31,7 +31,7 @@
                         <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
                       </svg>
                 </button>
-                <textarea class="align-self-start mx-0 w-100" id="chat-message-input" rows="1" placeholder="Type your message..."></textarea>
+                <textarea class="align-self-start mx-1 w-100" id="chat-message-input" rows="1" placeholder="Type your message..."></textarea>
                 <button class="btn btn-primary px-0 mx-0 flex-shrink-1 align-self-start" id="chat-message-submit" type="button" value="Send">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-caret-right-fill" viewBox="0 0 16 16">
                         <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>

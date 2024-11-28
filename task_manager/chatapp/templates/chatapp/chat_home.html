@@ -9,10 +9,10 @@
         </div>
         <div class="list-group w-50">
             {% for room in object_list %}
-            <ul class="list-group list-group-horizontal w-100" id="room-{{ room.id }}">
-                <li class="list-group-item w-50 mb-1">{{ room.name }}</li>
-                <li class="list-group-item w-25 mb-1">{{ room.created_at }}</li>
-                <li class="list-group-item w-25 mb-1"><a href="{% url 'chatapp:chat' room_name=room.name %}">{{ room.id }}</a></li>
+            <ul class="list-group list-group-horizontal w-100 shadow-lg" id="room-{{ room.id }}">
+                <li class="list-group-item w-25 mb-1 pt-4">{{ room.name }}</li>
+                <li class="list-group-item w-50 mb-1 pt-4">{{ room.created_at|date:"F d, Y h:iA"  }}</li>
+                <li class="list-group-item w-25 mb-1 pt-4"><a class="btn btn-primary w-100" href="{% url 'chatapp:chat' room_name=room.name %}">{{ room.id }}</a></li>
               </ul>
             {% endfor %}
         </div>
