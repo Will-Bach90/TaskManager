@@ -436,7 +436,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 function deleteMessage(messageId) {
-    fetch(`/message/${messageId}/delete/`, {
+    fetch(`/rooms/message/${messageId}/delete/`, {
         method: 'DELETE',
         headers: {
             'X-CSRFToken': getCsrfToken(), 
@@ -459,7 +459,7 @@ function deleteMessage(messageId) {
 
 function editMessage(messageId, currentContent, newContent) {
     if (newContent !== null) {
-        fetch(`/message/${messageId}/edit/`, {
+        fetch(`/rooms/message/${messageId}/edit/`, {
             method: 'PUT',
             headers: {
                 'X-CSRFToken': getCsrfToken(),
@@ -497,6 +497,11 @@ function editMessage(messageId, currentContent, newContent) {
                 } else {
                     alert('Failed to edit message.');
                 }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data); 
+                console.log(data.edit_time); 
             })
             .catch(err => console.error('Error editing message:', err));
     }

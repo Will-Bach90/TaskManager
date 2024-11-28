@@ -15,7 +15,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 class ChatappConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'  # Recommended for modern Django apps
+    default_auto_field = 'django.db.models.BigAutoField'
     name = 'chatapp'
 
     def ready(self):

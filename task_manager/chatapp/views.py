@@ -31,7 +31,7 @@ def chat(request, room_name):
         'current_user': request.user,
         'current_user_id': request.user.id,
     })
-    response.render()  # Ensure the template is fully rendered synchronously
+    response.render()
     return response
 
 @csrf_exempt
@@ -47,13 +47,14 @@ def delete_message(request, message_id):
 
 @csrf_exempt
 def edit_message(request, message_id):
+    print('heyo')
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)
             message = Message.objects.get(id=message_id, author=request.user)
-            message.content = data.get('content', message.content)
-            message.save()
-            return JsonResponse({'status': 'success'})
+            sent_content = data.get('content', message.content)
+            message.edit_message(new_content=sent_content)
+            return JsonResponse({'status': 'success', 'edit_time': message.editTimestamp})
         except Message.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

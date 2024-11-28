@@ -61,9 +61,9 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'task_manager.middleware.LoginRequiredMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'task_manager.middleware.LoginRequiredMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -161,5 +161,26 @@ LOGIN_REDIRECT_URL = '/tasks/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_USE_FINDERS = True
 import warnings
 warnings.simplefilter("always")
+
+
+import warnings
+warnings.filterwarnings("ignore", message="remove second argument of ws_handler", category=DeprecationWarning)
+warnings.filterwarnings(
+    "ignore",
+    message="StreamingHttpResponse must consume synchronous iterators",
+    category=Warning,
+)
+
+# import traceback
+
+# def custom_warning(message, category, filename, lineno, file=None, line=None):
+#     traceback.print_stack()
+#     print(f"{filename}:{lineno}: {category.__name__}: {message}")
+
+# warnings.showwarning = custom_warning

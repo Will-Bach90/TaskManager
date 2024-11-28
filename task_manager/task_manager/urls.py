@@ -4,11 +4,13 @@ from django.contrib.auth import views as auth_views
 from tasks import views
 from profile_management import views
 from chatapp import views
+from .views import HomeView
 
 app_name = 'base_app'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', HomeView.as_view(), name='home'),
     path('tasks/', include('tasks.urls')),
     path('profile/', include('profile_management.urls')),
     path('rooms/', include('chatapp.urls')),

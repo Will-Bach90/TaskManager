@@ -3,9 +3,17 @@
 import os
 import sys
 
+import warnings
+import traceback
+
+def custom_warning(message, category, filename, lineno, file=None, line=None):
+    traceback.print_stack()
+    print(f"{filename}:{lineno}: {category.__name__}: {message}")
+
 
 def main():
     """Run administrative tasks."""
+    warnings.showwarning = custom_warning
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'task_manager.settings')
     try:
         from django.core.management import execute_from_command_line

@@ -9,16 +9,27 @@
         </div>
         <div class="list-group w-50">
             {% for room in object_list %}
-                    <a href="{% url 'chatapp:chat' room_name=room.name %}" class="list-group-item list-group-item-action" aria-current="true">
-                    <div class="d-flex w-25 justify-content-between">
-                        <h5 class="mb-1">{{ room.name }}</h5>
-                        <small>{{ room.created_at }}</small>
-                    </div>
-                    <p class="mb-1"></p>
-                    <small></small>
-                    </a>
+            <ul class="list-group list-group-horizontal w-100" id="room-{{ room.id }}">
+                <li class="list-group-item w-50 mb-1">{{ room.name }}</li>
+                <li class="list-group-item w-25 mb-1">{{ room.created_at }}</li>
+                <li class="list-group-item w-25 mb-1"><a href="{% url 'chatapp:chat' room_name=room.name %}">{{ room.id }}</a></li>
+              </ul>
             {% endfor %}
+        </div>
+        <div class="row">
+            <div class="ps-3 p-3">
+                   <a type="button" class="btn btn-success" href="{% url 'chatapp:chat_create' %}">New Chat</a> 
+            </div>
         </div>
     </div>
 
 {% endblock %}
+
+<!-- <a href="{% url 'chatapp:chat' room_name=room.name %}" class="list-group-item list-group-item-action" aria-current="true">
+    <div class="d-flex w-25 justify-content-between">
+        <h5 class="mb-1">{{ room.name }}</h5>
+        <small>{{ room.created_at }}</small>
+    </div>
+    <p class="mb-1"></p>
+    <small></small>
+    </a> -->

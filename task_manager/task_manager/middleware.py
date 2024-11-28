@@ -25,10 +25,8 @@ class LoginRequiredMiddleware:
 
     def __call__(self, request):
         if not request.user.is_authenticated:
-            # List of URLs that do not require authentication
-            if request.path not in [reverse('login')]:  # Add other exclusions as needed
+            if request.path not in [reverse('login')]: 
                 return redirect(settings.LOGIN_URL)
 
-        # Ensure the response is compatible with ASGI
         response = self.get_response(request)
         return response
