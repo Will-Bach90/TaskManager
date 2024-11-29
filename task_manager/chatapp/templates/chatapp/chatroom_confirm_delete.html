@@ -1,0 +1,24 @@
+{% extends "task_manager/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8 text-center shadow p-4 rounded bg-light">
+            <h2 class="mb-4 text-danger fw-bold">Delete Chatroom</h2>
+            <p class="fs-5">
+                Are you sure you want to delete the chatroom
+                <span class="fw-bold text-primary">"{{ object.name }}"</span>?
+            </p>
+            <p class="text-muted">This action cannot be undone.</p>
+
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg px-4">Delete</button>
+                </form>
+                <a href="{% url 'chatapp:chat_list' %}" class="btn btn-secondary btn-lg px-4">Cancel</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

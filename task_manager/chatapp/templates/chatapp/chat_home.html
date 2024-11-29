@@ -2,28 +2,49 @@
 {% extends "task_manager/base.html" %}
 
 {% block content %}
-
-    <div class="container">
-        <div class="row">
-            <h1 class="ps-3 pt-3">Chat History</h1>
-        </div>
-        <div class="list-group w-50">
-            {% for room in object_list %}
-            <ul class="list-group list-group-horizontal w-100 shadow-lg" id="room-{{ room.id }}">
-                <li class="list-group-item w-25 mb-1 pt-4">{{ room.name }}</li>
-                <li class="list-group-item w-50 mb-1 pt-4">{{ room.created_at|date:"F d, Y h:iA"  }}</li>
-                <li class="list-group-item w-25 mb-1 pt-4"><a class="btn btn-primary w-100" href="{% url 'chatapp:chat' room_name=room.name %}">{{ room.id }}</a></li>
-              </ul>
-            {% endfor %}
-        </div>
-        <div class="row">
-            <div class="ps-3 p-3">
-                   <a type="button" class="btn btn-success" href="{% url 'chatapp:chat_create' %}">New Chat</a> 
-            </div>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col text-center">
+            <h1 class="fw-bold text-primary">Your Chatrooms</h1>
         </div>
     </div>
 
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            {% if object_list %}
+                <div class="list-group shadow-sm">
+                    {% for room in object_list %}
+                    <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center rounded mb-2">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">{{ room.name }}</h5>
+                            <p class="text-muted mb-0">Created: {{ room.created_at|date:"F d, Y h:iA" }}</p>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'chatapp:chat' room_name=room.name %}" class="btn btn-sm btn-outline-primary">Enter</a>
+                            <a href="{% url 'chatapp:chat_delete' room.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center">
+                    <p>You are not part of any chatrooms yet. Create one below!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col text-center">
+            <a href="{% url 'chatapp:chat_create' %}" class="btn btn-success btn-lg shadow-sm">Create New Chat</a>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
+
+
+
 
 <!-- <a href="{% url 'chatapp:chat' room_name=room.name %}" class="list-group-item list-group-item-action" aria-current="true">
     <div class="d-flex w-25 justify-content-between">

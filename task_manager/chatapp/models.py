@@ -21,11 +21,12 @@ class ChatRoom(models.Model):
         return self.name
 
     def add_participant(self, user, admin_user):
-        if admin_user == self.admin:
-            self.participants.add(user)
-            self.save()
-        else:
+        if admin_user != self.admin:
             raise PermissionError("Only admins can add participants.")
+        if user not in admin_user.profile.friends.all():  # For Profile model
+            raise PermissionError("Only friends can be added to the chat room.")
+        self.participants.add(user)
+        self.save()
 
     def remove_participant(self, user, admin_user):
         if admin_user == self.admin:

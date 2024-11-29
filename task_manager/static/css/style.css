@@ -3,12 +3,25 @@ input[type="date"].form-control {
 }
 
 body {
-    background-color: rgb(2, 140, 194) !important;
+    background-color: rgb(209, 242, 255) !important;
 }
 
-.navbar {
+/* .navbar {
     background-color: rgb(1, 66, 92) !important;
+} */
+/* #nav {
+    position:fixed;
+    width: 200px;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #162636;
+    height: 100%;
+  } */
+.shadow {
+    border: none !important;
 }
+
 
 #chat-log {
     height: 500px; 
@@ -50,7 +63,7 @@ body {
     position: absolute; /* for proper positioning */
 }
 
-.dropdown-menu {
+.options-menu {
     min-width: 20px !important;
     max-width: 50px !important; 
     width: auto; 

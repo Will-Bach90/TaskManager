@@ -102,7 +102,7 @@ function addHoverEventListener(button) {
                             <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
                         </svg>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu options-menu">
                     <li>
                         <a class="dropdown-item edit-btn" href="#">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -299,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                 <path d="M9.5 13a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0m0-5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0"/>
                             </svg>
                         </button>
-                        <ul class="dropdown-menu">
+                        <ul class="dropdown-menu options-menu">
                             <li>
                                 <a class="dropdown-item edit-btn" href="#">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil" viewBox="0 0 16 16">
@@ -514,10 +514,8 @@ function getCsrfToken() {
 function removeTextButKeepHTML(element) {
     if (!element) return;
 
-    // Iterate over all child nodes of the element
     Array.from(element.childNodes).forEach(node => {
         if (node.nodeType === Node.TEXT_NODE) {
-            // Remove text node
             node.remove();
         }
     });
