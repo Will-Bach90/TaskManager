@@ -1,10 +1,49 @@
-{% extends "task_manager/base.html" %}
+{% extends "chatapp/chat_home.html" %}
 
 {% block content %}
-<div class="container" id="chat-page">
+    <!-- Sidebar for chatrooms -->
+    <div class="col-auto col-md-3 col-xl-2 px-0 chat-col border-end" style="height: 100vh !important; overflow-y: auto !important;">
+        <div class="d-flex flex-column px-0 pt-3 text-white overflow-auto">
+            <a href="/" class="d-flex align-items-center justify-content-center pb-1 mb-md-0 me-md-auto ms-4 text-white text-decoration-none">
+                <span class="fs-5">Rooms</span>
+            </a>
+            {% if chatrooms %}
+            <ul class="nav flex-column mt-5">
+                {% for room in chatrooms %}
+                <li class="nav-item p-2 py-3 mx-1 shadow-sm chat-item">
+                    <div class="d-flex justify-content-between align-items-center w-100 text-decoration-none">
+                        <a class="text-white text-truncate ms-2 text-decoration-none" 
+                           href="{% url 'chatapp:chat' room_name=room.name %}" 
+                           style="max-width: 10ch;" title="{{ room.name }}">
+                            {{ room.name }}
+                        </a>
+                        <div class="dropdown">
+                            <a data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+                                  </svg>
+                                </a>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="{% url 'chatapp:chat_delete' room.id %}">Delete</a></li>
+                              <li><a class="dropdown-item" href="#">Settings</a></li>
+                            </ul>
+                          </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+            {% else %}
+            <p class="text-muted">No chatrooms available. Create one below!</p>
+            {% endif %}
+            <div class="d-flex link-body-emphasis text-center text-white align-items-start pt-5 pb-1 mx-1">
+                <a href="{% url 'chatapp:chat_create' %}" class="btn btn-info shadow-sm w-100">Create New Chat</a>
+            </div>
+        </div>
+    </div>
+    <div class="col pt-5" id="chat-page">
     <div class="row">
-        <div class="col-2"></div>
-        <div class="col-8" id="chat-log">
+        <div class="col-10 mx-5" id="chat-log">
             {% for message in messages %}
             <div 
             class="msg {% if message.author.id == request.user.id %}message-right{% else %}message-left{% endif %}" 
@@ -20,11 +59,9 @@
             </div>
             {% endfor %}
         </div>
-        <div class="col-2"></div>
     </div>
     <div class="row mt-1">
-        <div class="col-2"></div>
-        <div class="col-8 p-10 px-0 mx-0">
+        <div class="col-10 p-10 px-0 mx-5">
             <div class="d-flex flex-row mb-3">
                 <button class="btn px-0 mx-0 flex-shrink-1 align-self-start" id="add-more-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-plus-lg" viewBox="0 0 16 16">
@@ -39,7 +76,6 @@
                 </button>
             </div>
         </div>
-        <div class="col-2"></div>
     </div>
 </div>
 <script type="text/javascript">

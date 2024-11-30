@@ -105,9 +105,13 @@ def chat(request, room_name):
 
     messages = list(Message.objects.filter(room=room).order_by("timestamp"))
 
+    chatrooms = ChatRoom.objects.filter(participants=request.user).order_by("name")
+
     response = TemplateResponse(request, 'chatapp/chat_page.html', {
         'room_name_json': json.dumps(room_name),
         'messages': messages,
+        'chatrooms': chatrooms,
+        'room_name_json': json.dumps(room_name),
         'current_user': request.user,
         'current_user_id': request.user.id,
     })
