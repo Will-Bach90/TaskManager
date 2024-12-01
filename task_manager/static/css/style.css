@@ -30,6 +30,10 @@ body {
     border-top: solid 1px rgba(255, 255, 255, 0.2);
 }
 
+.border-dark-subtle {
+    border: solid 1px rgba(255, 255, 255, 0.2);
+}
+
 .chat-col {
     background-color: #30363e !important;
     border-right: 1px solid rgb(28, 28, 28) !important;;
@@ -67,8 +71,10 @@ body {
 
 
 #chat-log {
-    height: 800px; 
-    /* overflow-y: scroll;  */
+    /* height: 700px;  */
+    height: 78vh;
+    min-height: 78vh;
+    overflow-y: scroll; 
     border: none;
     padding: 20px;
     /* border-radius: 20px; */
@@ -187,13 +193,15 @@ body {
     word-break: break-word !important;
     resize: none;
     min-height: 45px;
-    max-height: 200px;
+    max-height: 120px;
     /* margin-right: -4px !important; */
 }
 #chat-message-area {
     /* border-radius: 20px; */
     border: 1px solid #21252b !important;
     background-color: #21252b;
+    height: 22vh;
+    max-height: 22vh;
 }
 
 .border-end {
@@ -256,4 +264,9 @@ body {
 #exit-password-button {
     border-radius: 30px;
     background-color: white;
+}
+
+#main-menu {
+    z-index: 1040 !important;
+    width: 180px !important;
 }

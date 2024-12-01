@@ -4,15 +4,15 @@
 {% block content %}
 <div class="d-flex flex-grow-1">
     <!-- Chat Sidebar -->
-    <div class="col-auto col-md-3 col-xl-2 px-0 chat-col border-end min-vh-100">
+    <div class="col-auto col-md-3 col-xl-2 px-0 chat-col min-vh-100">
         <div class="d-flex flex-column min-vh-100 chat-col" style="min-width: 200px !important; overflow-y: auto !important; height: 100vh !important;">
             <!-- Sticky Title -->
-            <div class="sticky-top bg-dark text-white text-center py-3 border-bottom">
+            <div class="sticky-top bg-dark text-white text-center py-3 border rounded">
                 <span class="fs-5">Rooms</span>
             </div>
 
             <!-- Scrollable Content -->
-            <div class="flex-grow-1 overflow-auto px-3 pt-2 chat-col" style="overflow-y: auto !important;">
+            <div class="flex-grow-1 overflow-auto px-3 pt-2 chat-col border-start border-end" style="overflow-y: auto !important;">
                 {% if object_list %}
                 <ul class="nav flex-column">
                     {% for room in object_list %}
@@ -34,7 +34,11 @@
                                     </svg>
                                 </a>
                                 <ul class="dropdown-menu">
+                                    {% if request.user == room.admin %}
                                     <li><a class="dropdown-item" href="{% url 'chatapp:chat_delete' room.id %}">Delete</a></li>
+                                    {% else %}
+                                    <li><a class="dropdown-item" href="{% url 'chatapp:chat_delete' room.id %}">Leave</a></li>
+                                    {% endif %}
                                     <li><a class="dropdown-item" href="#">Settings</a></li>
                                 </ul>
                             </div>
@@ -46,8 +50,8 @@
                 <p class="text-muted">No chatrooms available. Create one below!</p>
                 {% endif %}
             </div>
-            <div class="d-flex sticky-bottom link-body-emphasis text-center text-white align-items-start mx-1 my-3">
-                <a href="{% url 'chatapp:chat_create' %}" class="btn btn-info shadow-sm w-100">Create New Chat</a>
+            <div class="sticky-bottom bg-dark text-center py-3 border rounded">
+                <a href="{% url 'chatapp:chat_create' %}" class="fs-5 text-decoration-none text-white">New Chat</a>
             </div>
         </div>
     </div>

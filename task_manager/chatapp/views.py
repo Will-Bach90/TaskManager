@@ -15,6 +15,7 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseForbidden
+from task_manager.utils import is_user_active
 
 class ChatroomListView(ListView):
     model = ChatRoom
@@ -107,6 +108,12 @@ def chat(request, room_name):
 
     chatrooms = ChatRoom.objects.filter(participants=request.user).order_by("name")
 
+    participants = room.participants.all()
+
+    active_users = {}
+    for user in participants:
+        active_users[user.id] = is_user_active(user)
+
     response = TemplateResponse(request, 'chatapp/chat_page.html', {
         'room_name_json': json.dumps(room_name),
         'messages': messages,
@@ -114,6 +121,8 @@ def chat(request, room_name):
         'room_name_json': json.dumps(room_name),
         'current_user': request.user,
         'current_user_id': request.user.id,
+        'participants': participants,
+        'active_users': active_users,
     })
     response.render()
     return response

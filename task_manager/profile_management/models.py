@@ -2,12 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.timezone import now
+
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(default='default.jpg', upload_to='profile_images')
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
+    last_activity = models.DateTimeField(default=now)
+
     def __str__(self):
         return self.user.username
 
@@ -21,6 +25,10 @@ class UserProfile(models.Model):
 
     def is_friend(self, friend):
         return friend in self.friends.all()
+
+    def update_activity(self):
+        self.last_activity = now()
+        self.save()
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
