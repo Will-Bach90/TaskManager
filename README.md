@@ -19,6 +19,8 @@
    - Django provides the core framework for task and project management.
    - Django Channels and Redis enable WebSocket communication for real-time functionality.
    - Signals announce changes (e.g., task or message updates) to WebSocket consumers, which broadcast them to relevant clients.
+   - #### Database  
+        - Uses **PostgreSQL** for data storage, managing users, projects, tasks, and chat messages.
 
 2. **Frontend**:
    - Dynamic chat and task components update in real-time using JavaScript.
