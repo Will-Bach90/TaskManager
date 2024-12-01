@@ -531,3 +531,96 @@ function clearTextAndKeepHTML(element) {
 function copyTextToClipboard(text) {
     navigator.clipboard.writeText(text.trim());
 }  
+
+
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+const activitySocket = new WebSocket('ws://' + window.location.host + '/ws/activity/');
+
+activitySocket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    console.log(data);
+    const userId = data.user_id;
+    const status = data.status;
+
+    const userElement = document.getElementById('user-activity-status-' + userId);
+    if (userElement) {
+        userElement.style = 'color: ' + getBadgeClass(status);
+    }
+};
+
+function getBadgeClass(status) {
+    switch (status) {
+        case 'Active': return 'green;';
+        case 'Idle': return 'rgb(231, 208, 0);';
+        case 'Inactive': return 'red;';
+        case 'Offline': return 'rgb(155, 155, 155);';
+        default: return 'gray;';
+    }
+}
+
+// const pingInterval = 10000; 
+// setInterval(() => {
+//     fetch('/profile/api/update-activity/', {
+//         method: 'POST',
+//         headers: {
+//             'X-CSRFToken': getCsrfToken(),
+//             'Content-Type': 'application/json',
+//         },
+//         body: JSON.stringify({ action: 'ping' }),
+//     });
+// }, pingInterval);
+
+// function getCsrfToken() {
+//     const cookies = document.cookie.split(';');
+//     for (let cookie of cookies) {
+//         const [key, value] = cookie.trim().split('=');
+//         if (key === 'csrftoken') return value;
+//     }
+//     return null;
+// }
+
+let lastInteractionTime = Date.now();
+// const idleThreshold = 2 * 60 * 1000; 
+const idleThreshold = 10000;
+const inactiveThreshold = 20000;
+
+['mousemove', 'keydown', 'click', 'scroll'].forEach(event => {
+    document.addEventListener(event, () => {
+        lastInteractionTime = Date.now();
+    });
+});
+
+setInterval(() => {
+    const currentTime = Date.now();
+    const timeSinceLastInteraction = currentTime - lastInteractionTime;
+
+    if (timeSinceLastInteraction < idleThreshold) {
+        updateActivity(2);
+    } else if(timeSinceLastInteraction > idleThreshold && timeSinceLastInteraction < inactiveThreshold) {
+        updateActivity(10);
+    } else if(timeSinceLastInteraction > inactiveThreshold) {
+        updateActivity(20);
+    }
+}, 10000);
+
+function updateActivity(timediff) {
+    fetch('/profile/api/update-activity/'+timediff, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'Content-Type': 'application/json',
+        },
+    }).then(response => response.json())
+      .then(data => console.log('Activity status updated:', data));
+}
+
+function getCsrfToken() {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+        const [key, value] = cookie.trim().split('=');
+        if (key === 'csrftoken') return value;
+    }
+    return null;
+}

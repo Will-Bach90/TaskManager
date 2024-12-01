@@ -14,6 +14,7 @@ whitenoise = "*"
 uvicorn = "*"
 pillow = "*"
 websockets = "*"
+celery = "*"
 
 [dev-packages]
 

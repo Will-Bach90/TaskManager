@@ -3,6 +3,36 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from channels.db import database_sync_to_async
+from task_manager.utils import is_user_logged_out
+from django.utils.timezone import now
+from datetime import timedelta
+# from django.contrib.sessions.models import Session
+
+# def is_user_active(user):
+#     if is_user_logged_out(user):
+#         return "Offline"
+
+#     active_threshold = timedelta(minutes=2) 
+#     idle_threshold = timedelta(minutes=10)
+#     time_elapsed = now() - user.userprofile.last_activity
+
+#     if time_elapsed <= active_threshold:
+#         return "Active"
+#     elif time_elapsed > active_threshold and time_elapsed <= idle_threshold:
+#         return "Idle"
+#     elif time_elapsed > idle_threshold:
+#         return "Inactive"
+
+# def is_user_logged_out(user):
+#     if not user.is_authenticated:
+#         return True
+#     from django.contrib.sessions.models import Session
+#     sessions = Session.objects.filter(expire_date__gte=now())
+#     for session in sessions:
+#         data = session.get_decoded()
+#         if user.id == int(data.get('_auth_user_id', 0)):
+#             return False
+#     return True 
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -86,3 +116,49 @@ class ChatConsumer(AsyncWebsocketConsumer):
             }))
         except Exception as e:
             print(f"Error in chat_message: {e}")
+
+class ActivityConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.project_group_name = "activity_updates"
+
+        await self.channel_layer.group_add(
+            self.project_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.project_group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        user_id = data.get('user_id')
+
+        status = await self.get_user_status(user_id)
+
+        await self.channel_layer.group_send(
+            self.group_name,
+            {
+                "type": "broadcast_status",
+                "user_id": user_id,
+                "status": status,
+            }
+        )
+
+    async def broadcast_status(self, event):
+        await self.send(text_data=json.dumps({
+            "user_id": event["user_id"],
+            "status": event["status"],
+        }))
+
+    @database_sync_to_async
+    def get_user_status(self, user_id):
+        from django.contrib.auth.models import User
+        user = User.objects.get(id=user_id)
+        if is_user_logged_out(user):
+            user.userprofile.current_status = 'Offline'
+        return user.userprofile.current_status
+        # return is_user_active(user)

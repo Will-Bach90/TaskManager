@@ -7,6 +7,7 @@ app_name = 'user_profile_app'
 
 urlpatterns = [
     path('', views.UserProfile, name='profile'),
+    path('api/update-activity/<int:timediff>', views.update_activity, name='update_activity'),
 ]
 
 #  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

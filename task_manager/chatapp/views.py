@@ -15,7 +15,35 @@ from django.template.response import TemplateResponse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseForbidden
-from task_manager.utils import is_user_active
+from django.utils.timezone import now
+from datetime import timedelta
+from task_manager.utils import is_user_logged_out
+
+# def is_user_active(user):
+#     if is_user_logged_out(user):
+#         return "Offline"
+
+#     active_threshold = timedelta(minutes=2) 
+#     idle_threshold = timedelta(minutes=10)
+#     time_elapsed = now() - user.userprofile.last_activity
+
+#     if time_elapsed <= active_threshold:
+#         return "Active"
+#     elif time_elapsed > active_threshold and time_elapsed <= idle_threshold:
+#         return "Idle"
+#     elif time_elapsed > idle_threshold:
+#         return "Inactive"
+
+# def is_user_logged_out(user):
+#     if not user.is_authenticated:
+#         return True
+#     from django.contrib.sessions.models import Session
+#     sessions = Session.objects.filter(expire_date__gte=now())
+#     for session in sessions:
+#         data = session.get_decoded()
+#         if user.id == int(data.get('_auth_user_id', 0)):
+#             return False
+#     return True 
 
 class ChatroomListView(ListView):
     model = ChatRoom
@@ -112,7 +140,9 @@ def chat(request, room_name):
 
     active_users = {}
     for user in participants:
-        active_users[user.id] = is_user_active(user)
+        if is_user_logged_out(user):
+            user.userprofile.current_status = 'Offline'
+        active_users[user.id] = user.userprofile.current_status
 
     response = TemplateResponse(request, 'chatapp/chat_page.html', {
         'room_name_json': json.dumps(room_name),
@@ -142,7 +172,6 @@ def delete_message(request, message_id):
 
 @csrf_exempt
 def edit_message(request, message_id):
-    print('heyo')
     if request.method == 'PUT':
         try:
             data = json.loads(request.body)

@@ -111,13 +111,13 @@
                         {% with active_users|dict_get:user.id as status %}
                             {% if user.id in active_users %}
                                 {% if status == 'Active' %}
-                                    <div style="color: green;">
+                                    <div id="user-activity-status-{{ user.id }}" style="color: green;">
                                 {% elif status == 'Idle' %}
-                                    <div style="color: rgb(231, 208, 0);">
+                                    <div id="user-activity-status-{{ user.id }}" style="color: rgb(231, 208, 0);">
                                 {% elif status == 'Inactive' %}
-                                    <div style="color: red;">
+                                    <div id="user-activity-status-{{ user.id }}" style="color: red;">
                                 {% elif status == 'Offline' %}
-                                    <div style="color: rgb(155, 155, 155);">
+                                    <div id="user-activity-status-{{ user.id }}" style="color: rgb(155, 155, 155);">
                                 {% endif %}
                                         <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" fill="currentColor" class="bi bi-circle-fill" viewBox="0 0 16 16"      
                                         data-bs-toggle="tooltip" data-bs-placement="bottom"

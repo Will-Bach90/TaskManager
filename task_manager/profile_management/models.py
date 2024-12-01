@@ -11,6 +11,7 @@ class UserProfile(models.Model):
     avatar = models.ImageField(default='default.jpg', upload_to='profile_images')
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
     last_activity = models.DateTimeField(default=now)
+    current_status = models.TextField(default='Offline')
 
     def __str__(self):
         return self.user.username
@@ -28,6 +29,7 @@ class UserProfile(models.Model):
 
     def update_activity(self):
         self.last_activity = now()
+        self.current_status = 'Active'
         self.save()
 
 @receiver(post_save, sender=User)
