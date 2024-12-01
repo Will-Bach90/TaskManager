@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'channels',
     'channels.db',
     'widget_tweaks',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [

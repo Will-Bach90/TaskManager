@@ -15,6 +15,7 @@ uvicorn = "*"
 pillow = "*"
 websockets = "*"
 celery = "*"
+django-celery-beat = "*"
 
 [dev-packages]
 

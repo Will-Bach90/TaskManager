@@ -158,7 +158,5 @@ class ActivityConsumer(AsyncWebsocketConsumer):
     def get_user_status(self, user_id):
         from django.contrib.auth.models import User
         user = User.objects.get(id=user_id)
-        if is_user_logged_out(user):
-            user.userprofile.current_status = 'Offline'
         return user.userprofile.current_status
         # return is_user_active(user)

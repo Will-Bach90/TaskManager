@@ -140,8 +140,6 @@ def chat(request, room_name):
 
     active_users = {}
     for user in participants:
-        if is_user_logged_out(user):
-            user.userprofile.current_status = 'Offline'
         active_users[user.id] = user.userprofile.current_status
 
     response = TemplateResponse(request, 'chatapp/chat_page.html', {

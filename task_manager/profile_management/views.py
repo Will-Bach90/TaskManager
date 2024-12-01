@@ -26,19 +26,6 @@ def update_activity(request, timediff):
         else:
             user_profile.current_status = 'Offline'
         user_profile.save()
-
-        # # Determine the user's status
-        # idle_threshold = timedelta(seconds=10)
-        # inactive_threshold = timedelta(seconds=20)
-        # time_diff = now() - user_profile.last_activity
-
-        # if time_diff < idle_threshold:
-        #     status = "Active"
-        # elif time_diff < inactive_threshold:
-        #     status = "Idle"
-        # else:
-        #     status = "Inactive"
         
-
         return JsonResponse({'status': 'success', 'current_status': request.user.userprofile.current_status})
     return JsonResponse({'status': 'unauthorized'}, status=401)

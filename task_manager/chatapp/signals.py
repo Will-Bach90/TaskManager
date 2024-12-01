@@ -113,8 +113,6 @@ def announce_edited_message(sender, instance, **kwargs):
 def broadcast_user_status(user):
     channel_layer = get_channel_layer()
     # status = is_user_active(user)
-    if is_user_logged_out(user):
-            user.userprofile.current_status = 'Offline'
     status = user.userprofile.current_status
     async_to_sync(channel_layer.group_send)(
         "activity_updates",
@@ -127,7 +125,7 @@ def broadcast_user_status(user):
 
 @receiver(user_logged_in)
 def handle_user_login(sender, request, user, **kwargs):
-    user.userprofile.last_activity = now()
+    user.userprofile.current_status = 'Inactive'
     user.userprofile.save()
     broadcast_user_status(user)
 
@@ -135,6 +133,8 @@ def handle_user_login(sender, request, user, **kwargs):
 # Signal for user logout
 @receiver(user_logged_out)
 def handle_user_logout(sender, request, user, **kwargs):
+    user.userprofile.current_status = 'Offline'
+    user.userprofile.save()
     broadcast_user_status(user) 
 
 
