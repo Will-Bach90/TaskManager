@@ -138,7 +138,7 @@ class ActivityConsumer(BaseWebSocketConsumer):
         data = json.loads(text_data)
         user_id = data.get('user_id')
 
-        status = await self.get_user_status(user_id)
+        status, last_activity = await self.get_user_status(user_id)
 
         await self.channel_layer.group_send(
             self.group_name,
@@ -146,6 +146,7 @@ class ActivityConsumer(BaseWebSocketConsumer):
                 "type": "broadcast_status",
                 "user_id": user_id,
                 "status": status,
+                "last_activity": last_activity.isoformat(),
             }
         )
 
@@ -153,11 +154,12 @@ class ActivityConsumer(BaseWebSocketConsumer):
         await self.send(text_data=json.dumps({
             "user_id": event["user_id"],
             "status": event["status"],
+            "last_activity": event["last_activity"],
         }))
 
     @database_sync_to_async
     def get_user_status(self, user_id):
         from django.contrib.auth.models import User
         user = User.objects.get(id=user_id)
-        return user.userprofile.current_status
+        return [user.userprofile.current_status, user.userprofile.last_activity]
         # return is_user_active(user)

@@ -27,11 +27,14 @@ def check_user_activity():
         profile.current_status = new_status
         profile.save()
 
+        last_activity = profile.last_activity.isoformat()
+        print(last_activity)
         async_to_sync(channel_layer.group_send)(
             "activity_updates",
             {
                 "type": "broadcast_status",
                 "user_id": profile.user.id,
                 "status": new_status,
+                "last_activity": last_activity,
             }
         )

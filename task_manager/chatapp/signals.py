@@ -114,12 +114,14 @@ def broadcast_user_status(user):
     channel_layer = get_channel_layer()
     # status = is_user_active(user)
     status = user.userprofile.current_status
+    last_activity = user.userprofile.last_activity.isoformat()
     async_to_sync(channel_layer.group_send)(
         "activity_updates",
         {
             "type": "broadcast_status",
             "user_id": user.id,
             "status": status,
+            "last_activity": last_activity,
         }
     )
 

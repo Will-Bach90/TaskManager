@@ -544,7 +544,7 @@ function copyTextToClipboard(text) {
 const activitySocket = new WebSocket('ws://' + window.location.host + '/ws/activity/');
 
 activitySocket.onmessage = function(event) {
-    if (e.data === "ping") {
+    if (event.data === "ping") {
         console.log("Ping received, sending pong");
         activitySocket.send("pong");
     } else {
@@ -552,10 +552,13 @@ activitySocket.onmessage = function(event) {
         console.log(data);
         const userId = data.user_id;
         const status = data.status;
+        const last_activity = data.last_activity;
 
         const userElement = document.getElementById('user-activity-status-' + userId);
         if (userElement) {
             userElement.style = 'color: ' + getBadgeClass(status);
+            const tooltip = userElement.querySelector(".status-indicator");
+            tooltip.setAttribute("data-bs-title", "Last seen: " + last_activity + " ago");
         }
     }
 };
@@ -569,6 +572,43 @@ function getBadgeClass(status) {
         default: return 'gray;';
     }
 }
+
+function timeSince(date) {
+    const now = new Date();
+    const seconds = Math.round((now - date) / 1000);
+  
+    if (seconds < 60) {
+      return seconds + ' seconds ago';
+    }
+  
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) {
+      return minutes + ' minutes ago';
+    }
+  
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) {
+      return hours + ' hours ago';
+    }
+  
+    const days = Math.round(hours / 24);
+    if (days < 7) {
+      return days + ' days ago';
+    }
+  
+    const weeks = Math.round(days / 7);
+    if (weeks < 4) {
+      return weeks + ' weeks ago';
+    }
+  
+    const months = Math.round(days / 30);
+    if (months < 12) {
+      return months + ' months ago';
+    }
+  
+    const years = Math.round(months / 12);
+    return years + ' years ago';
+  }
 
 // const pingInterval = 10000; 
 // setInterval(() => {
@@ -599,11 +639,11 @@ const inactiveThreshold = 20000;
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         console.log('User is now Inactive');
-        updateActivity(20)
+        updateActivity(21000)
     } else {
         // User has returned
         console.log('User is active again');
-        markUserActive(2);
+        updateActivity(2);
     }
 });
 
@@ -616,14 +656,14 @@ document.addEventListener('visibilitychange', () => {
 setInterval(() => {
     const currentTime = Date.now();
     const timeSinceLastInteraction = currentTime - lastInteractionTime;
+    updateActivity(timeSinceLastInteraction);
 
-    if (timeSinceLastInteraction < idleThreshold) {
-        updateActivity(2);
-    } else if(timeSinceLastInteraction > idleThreshold && timeSinceLastInteraction < inactiveThreshold) {
-        updateActivity(10);
-    } else if(timeSinceLastInteraction > inactiveThreshold) {
-        updateActivity(20);
-    }
+    // if (timeSinceLastInteraction < idleThreshold) {
+    //     updateActivity(timeSinceLastInteraction);
+    // } else if(timeSinceLastInteraction > idleThreshold && timeSinceLastInteraction < inactiveThreshold) {
+    //     updateActivity(timeSinceLastInteraction);
+    // } else if(timeSinceLastInteraction > inactiveThreshold) {
+    // }
 }, 10000);
 
 function updateActivity(timediff) {
