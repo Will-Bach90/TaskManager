@@ -6,6 +6,7 @@ from channels.db import database_sync_to_async
 from task_manager.utils import is_user_logged_out
 from django.utils.timezone import now
 from datetime import timedelta
+from task_manager.consumers import BaseWebSocketConsumer
 # from django.contrib.sessions.models import Session
 
 # def is_user_active(user):
@@ -34,7 +35,7 @@ from datetime import timedelta
 #             return False
 #     return True 
 
-class ChatConsumer(AsyncWebsocketConsumer):
+class ChatConsumer(BaseWebSocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = f'chat_{self.room_name}'
@@ -117,7 +118,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         except Exception as e:
             print(f"Error in chat_message: {e}")
 
-class ActivityConsumer(AsyncWebsocketConsumer):
+class ActivityConsumer(BaseWebSocketConsumer):
     async def connect(self):
         self.project_group_name = "activity_updates"
 

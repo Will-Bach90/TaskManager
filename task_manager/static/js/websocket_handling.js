@@ -3,17 +3,22 @@ const taskSocket = new WebSocket(
 );
 
 taskSocket.onmessage = function(event) {
-    const data = JSON.parse(event.data); 
-    console.log("WebSocket message received: ", data);
+    if (e.data === "ping") {
+        console.log("Ping received, sending pong");
+        taskSocket.send("pong");
+    } else {
+        const data = JSON.parse(event.data); 
+        console.log("WebSocket message received: ", data);
 
-    if (data.message) {
-        const taskData = JSON.parse(data.message); 
-        console.log("Parsed task data: ", taskData);
+        if (data.message) {
+            const taskData = JSON.parse(data.message); 
+            console.log("Parsed task data: ", taskData);
 
-        if (taskData.action === 'deleted') {
-            handleTaskDeletion(taskData.id);
-        } else if (taskData.action === 'created') {
-            handleTaskAddition(taskData);
+            if (taskData.action === 'deleted') {
+                handleTaskDeletion(taskData.id);
+            } else if (taskData.action === 'created') {
+                handleTaskAddition(taskData);
+            }
         }
     }
 };
@@ -74,17 +79,22 @@ const projectSocket = new WebSocket(
 );
 
 projectSocket.onmessage = function(event) {
-    const data = JSON.parse(event.data); 
-    console.log("WebSocket message received: ", data);
+    if (e.data === "ping") {
+        console.log("Ping received, sending pong");
+        projectSocket.send("pong");
+    } else {
+        const data = JSON.parse(event.data); 
+        console.log("WebSocket message received: ", data);
 
-    if (data.message) {
-        const projectData = JSON.parse(data.message); 
-        console.log("Parsed project data: ", projectData);
+        if (data.message) {
+            const projectData = JSON.parse(data.message); 
+            console.log("Parsed project data: ", projectData);
 
-        if (projectData.action === 'deleted') {
-            handleProjectDeletion(projectData.id);
-        } else if (projectData.action === 'created') {
-            handleProjectAddition(projectData);
+            if (projectData.action === 'deleted') {
+                handleProjectDeletion(projectData.id);
+            } else if (projectData.action === 'created') {
+                handleProjectAddition(projectData);
+            }
         }
     }
 };

@@ -11,37 +11,42 @@ chatSocket.onopen = function(e) {
 const cU = currentUsername;
 const cUId = currentUserId;
 chatSocket.onmessage = function (e) {
-    const data = JSON.parse(e.data);
-    console.log("WebSocket received data:", data);
-    const { author, author_id, content, msg_id, timestamp} = data.message;
+    if (e.data === "ping") {
+        console.log("Ping received, sending pong");
+        chatSocket.send("pong");
+    } else {
+        const data = JSON.parse(e.data);
+        console.log("WebSocket received data:", data);
+        const { author, author_id, content, msg_id, timestamp} = data.message;
 
-    if (data.action === "send") {
-        const isCurrentUser = author === cU;
-        updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
-        const chatLog = document.querySelector('#chat-log');
-        chatLog.scrollTop = chatLog.scrollHeight;
-    } else if (data.action === "edit") {
-        const msgP = document.querySelector(`[data-message-id="${msg_id}"]`);
-        if (msgP) {
-            const button = msgP.querySelector('.message-badge');
-            if (button) {
-                button.innerHTML = content;
-            } else {
-                console.error('Button not found inside parent container.');
-            }
-
+        if (data.action === "send") {
+            const isCurrentUser = author === cU;
+            updateChatLog(author, content, timestamp, isCurrentUser, cUId, author_id, msg_id);
             const chatLog = document.querySelector('#chat-log');
-
             chatLog.scrollTop = chatLog.scrollHeight;
-            // }
-        } else {
-            console.error('Message container not found for message ID:', messageId);
+        } else if (data.action === "edit") {
+            const msgP = document.querySelector(`[data-message-id="${msg_id}"]`);
+            if (msgP) {
+                const button = msgP.querySelector('.message-badge');
+                if (button) {
+                    button.innerHTML = content;
+                } else {
+                    console.error('Button not found inside parent container.');
+                }
+
+                const chatLog = document.querySelector('#chat-log');
+
+                chatLog.scrollTop = chatLog.scrollHeight;
+                // }
+            } else {
+                console.error('Message container not found for message ID:', messageId);
+            }
+        } else if (data.action === "delete") {
+            const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
+            if (messageElement) {
+                messageElement.remove();
+            } 
         }
-    } else if (data.action === "delete") {
-        const messageElement = document.querySelector(`[data-message-id="${msg_id}"]`);
-        if (messageElement) {
-            messageElement.remove();
-        } 
     }
 };
 
@@ -539,14 +544,19 @@ function copyTextToClipboard(text) {
 const activitySocket = new WebSocket('ws://' + window.location.host + '/ws/activity/');
 
 activitySocket.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    console.log(data);
-    const userId = data.user_id;
-    const status = data.status;
+    if (e.data === "ping") {
+        console.log("Ping received, sending pong");
+        activitySocket.send("pong");
+    } else {
+        const data = JSON.parse(event.data);
+        console.log(data);
+        const userId = data.user_id;
+        const status = data.status;
 
-    const userElement = document.getElementById('user-activity-status-' + userId);
-    if (userElement) {
-        userElement.style = 'color: ' + getBadgeClass(status);
+        const userElement = document.getElementById('user-activity-status-' + userId);
+        if (userElement) {
+            userElement.style = 'color: ' + getBadgeClass(status);
+        }
     }
 };
 
@@ -585,6 +595,17 @@ let lastInteractionTime = Date.now();
 // const idleThreshold = 2 * 60 * 1000; 
 const idleThreshold = 10000;
 const inactiveThreshold = 20000;
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        console.log('User is now Inactive');
+        updateActivity(20)
+    } else {
+        // User has returned
+        console.log('User is active again');
+        markUserActive(2);
+    }
+});
 
 ['mousemove', 'keydown', 'click', 'scroll'].forEach(event => {
     document.addEventListener(event, () => {
