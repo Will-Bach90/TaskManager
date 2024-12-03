@@ -138,6 +138,13 @@ def chat(request, room_name):
 
     participants = room.participants.all()
 
+    friends = request.user.userprofile.friends.all()
+    friends_list = []
+    for fr in friends:
+        print(fr.user)
+        friends_list.append(fr.user)
+    print(friends_list)
+
     active_users = {}
     for user in participants:
         active_users[user.id] = user.userprofile.current_status
@@ -149,6 +156,7 @@ def chat(request, room_name):
         'room_name_json': json.dumps(room_name),
         'current_user': request.user,
         'current_user_id': request.user.id,
+        'friends': friends_list,
         'participants': participants,
         'active_users': active_users,
     })

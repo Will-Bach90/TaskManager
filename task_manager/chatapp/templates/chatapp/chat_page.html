@@ -3,7 +3,7 @@
 {% block content %}
 <div class="d-flex flex-grow-1">
     <!-- Chat Sidebar -->
-    <div class="col-auto col-md-3 col-xl-2 px-0 chat-col min-vh-100">
+    <div class="col-auto px-0 chat-col min-vh-100">
         <div class="d-flex flex-column min-vh-100 chat-col" style="min-width: 200px !important; overflow-y: auto !important; height: 100vh !important;">
             <!-- Sticky Title -->
             <div class="sticky-top bg-dark text-white text-center py-3 border rounded">
@@ -154,15 +154,43 @@
             {% endif %}
         </div>
         <div class="sticky-bottom bg-dark text-white text-center py-3 border border-1 rounded">
-            <span class="fs-5">
+            <span class="fs-5" data-bs-toggle="modal" data-bs-target="#exampleModal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                  </svg>
+                </svg>
             </span>
         </div>
     </div>
 </div>
 </div>
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Add Friends</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form method="post" action="#">
+            {% csrf_token %}
+            <label for="id_friends">Select Friends:</label>
+            <select id="id_friends" name="friends" multiple>
+                {% for friend in friends %}
+                <option value="{{ friend.id }}">{{ friend.username }}</option>
+                {% endfor %}
+            </select>
+    
+            <button type="submit" class="btn btn-primary">Create Chat</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+        </form>
+        </div>
+        <!-- <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div> -->
+      </div>
+    </div>
+  </div>
 <script type="text/javascript">
     var roomName = {{ room_name_json|safe }};
     const currentUsername = "{{ current_user|escapejs }}";
@@ -171,5 +199,17 @@
 {% endblock %}
 {% load static %} 
 {% block scripts %}
-<script src="{% static 'js/chat_handling.js' %}"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#id_friends').select2({
+            placeholder: 'Select friends to add to this chat',
+            allowClear: true,
+            width: '100%',
+            dropdownCssClass: 'z-index: 10800;'
+        });
+    });
+</script>
 {% endblock %}

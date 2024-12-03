@@ -270,3 +270,7 @@ body {
     z-index: 1040 !important;
     width: 180px !important;
 }
+
+#id_friends {
+    z-index: 1050;
+}

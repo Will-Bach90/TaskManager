@@ -610,29 +610,7 @@ function timeSince(date) {
     return years + ' years ago';
   }
 
-// const pingInterval = 10000; 
-// setInterval(() => {
-//     fetch('/profile/api/update-activity/', {
-//         method: 'POST',
-//         headers: {
-//             'X-CSRFToken': getCsrfToken(),
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ action: 'ping' }),
-//     });
-// }, pingInterval);
-
-// function getCsrfToken() {
-//     const cookies = document.cookie.split(';');
-//     for (let cookie of cookies) {
-//         const [key, value] = cookie.trim().split('=');
-//         if (key === 'csrftoken') return value;
-//     }
-//     return null;
-// }
-
 let lastInteractionTime = Date.now();
-// const idleThreshold = 2 * 60 * 1000; 
 const idleThreshold = 10000;
 const inactiveThreshold = 20000;
 
@@ -650,6 +628,7 @@ document.addEventListener('visibilitychange', () => {
 ['mousemove', 'keydown', 'click', 'scroll'].forEach(event => {
     document.addEventListener(event, () => {
         lastInteractionTime = Date.now();
+        // updateActivity(2);
     });
 });
 
@@ -657,14 +636,7 @@ setInterval(() => {
     const currentTime = Date.now();
     const timeSinceLastInteraction = currentTime - lastInteractionTime;
     updateActivity(timeSinceLastInteraction);
-
-    // if (timeSinceLastInteraction < idleThreshold) {
-    //     updateActivity(timeSinceLastInteraction);
-    // } else if(timeSinceLastInteraction > idleThreshold && timeSinceLastInteraction < inactiveThreshold) {
-    //     updateActivity(timeSinceLastInteraction);
-    // } else if(timeSinceLastInteraction > inactiveThreshold) {
-    // }
-}, 10000);
+}, 2000);
 
 function updateActivity(timediff) {
     fetch('/profile/api/update-activity/'+timediff, {
@@ -685,3 +657,8 @@ function getCsrfToken() {
     }
     return null;
 }
+
+activitySocket.onclose = function(e) {
+    console.log('User is now Inactive');
+    updateActivity(21000)
+};

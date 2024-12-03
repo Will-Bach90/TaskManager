@@ -1,7 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+from asgiref.sync import async_to_sync, sync_to_async
 from channels.db import database_sync_to_async
 from task_manager.utils import is_user_logged_out
 from django.utils.timezone import now
@@ -129,17 +129,45 @@ class ActivityConsumer(BaseWebSocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.project_group_name,
-            self.channel_name
-        )
+        from django.contrib.auth.models import User
+        from profile_management.models import UserProfile
+
+        user = self.scope.get('user', None)
+        if user and user.is_authenticated:
+            user_profile = await sync_to_async(lambda: UserProfile.objects.get(user=user))()
+            print(f"User {user_profile.current_status} disconnected.")
+            user_profile.current_status = "Inactive"
+            await sync_to_async(user_profile.save)()
+            print(f"User {user_profile.current_status} disconnected.")
+
+            last_activity = await sync_to_async(lambda: user_profile.last_activity)()
+
+            channel_layer = get_channel_layer()
+            await channel_layer.group_send(
+                "activity_updates",
+                {
+                    "type": "broadcast_status",
+                    "user_id": user.id,
+                    "status": "Inactive",
+                    "last_activity": last_activity.isoformat(),
+                },
+            )
+
+            await self.channel_layer.group_discard(self.project_group_name, self.channel_name)
+
+        print(f"WebSocket disconnected: {close_code}")
+        # await self.channel_layer.group_discard(
+        #     self.project_group_name,
+        #     self.channel_name
+        # )
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         user_id = data.get('user_id')
 
         status, last_activity = await self.get_user_status(user_id)
-
+        print(status)
+        print(last_activity)
         await self.channel_layer.group_send(
             self.group_name,
             {
