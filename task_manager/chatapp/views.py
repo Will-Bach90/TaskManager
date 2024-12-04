@@ -18,32 +18,7 @@ from django.http import HttpResponseForbidden
 from django.utils.timezone import now
 from datetime import timedelta
 from task_manager.utils import is_user_logged_out
-
-# def is_user_active(user):
-#     if is_user_logged_out(user):
-#         return "Offline"
-
-#     active_threshold = timedelta(minutes=2) 
-#     idle_threshold = timedelta(minutes=10)
-#     time_elapsed = now() - user.userprofile.last_activity
-
-#     if time_elapsed <= active_threshold:
-#         return "Active"
-#     elif time_elapsed > active_threshold and time_elapsed <= idle_threshold:
-#         return "Idle"
-#     elif time_elapsed > idle_threshold:
-#         return "Inactive"
-
-# def is_user_logged_out(user):
-#     if not user.is_authenticated:
-#         return True
-#     from django.contrib.sessions.models import Session
-#     sessions = Session.objects.filter(expire_date__gte=now())
-#     for session in sessions:
-#         data = session.get_decoded()
-#         if user.id == int(data.get('_auth_user_id', 0)):
-#             return False
-#     return True 
+from django.db.models import F
 
 class ChatroomListView(ListView):
     model = ChatRoom
@@ -104,27 +79,6 @@ class ChatRoomDeleteView(DeleteView):
             return HttpResponseForbidden("You do not have permission to delete this chatroom.")
         return super().dispatch(request, *args, **kwargs)
 
-
-# class ChatroomCreateView(CreateView):
-#     model = ChatRoom
-#     fields = ['name', 'description']
-#     template_name = 'chatapp/chat_form.html'
-#     success_url = '/rooms'
-
-
-# def chat(request, room_name):
-#     room = get_object_or_404(ChatRoom, name=room_name) 
-#     messages = list(Message.objects.filter(room=room).order_by("timestamp"))  
-
-#     response = TemplateResponse(request, 'chatapp/chat_page.html', {
-#         'room_name_json': json.dumps(room_name),
-#         'messages': messages,
-#         'current_user': request.user,
-#         'current_user_id': request.user.id,
-#     })
-#     response.render()
-#     return response
-
 def chat(request, room_name):
     room = get_object_or_404(ChatRoom, name=room_name)
 
@@ -141,24 +95,23 @@ def chat(request, room_name):
     friends = request.user.userprofile.friends.all()
     friends_list = []
     for fr in friends:
-        print(fr.user)
         friends_list.append(fr.user)
-    print(friends_list)
 
     active_users = {}
     for user in participants:
         active_users[user.id] = user.userprofile.current_status
+        print(f"{user} : {user.userprofile.current_status}")
 
     response = TemplateResponse(request, 'chatapp/chat_page.html', {
         'room_name_json': json.dumps(room_name),
         'messages': messages,
         'chatrooms': chatrooms,
-        'room_name_json': json.dumps(room_name),
         'current_user': request.user,
         'current_user_id': request.user.id,
         'friends': friends_list,
         'participants': participants,
         'active_users': active_users,
+        'current_room': room,
     })
     response.render()
     return response
@@ -187,4 +140,25 @@ def edit_message(request, message_id):
             return JsonResponse({'status': 'success', 'edit_time': message.editTimestamp})
         except Message.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Message not found'}, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def add_users(request):
+    if request.method == 'POST':
+        chat_id = request.POST.get('chat_id')
+        friends_ids = request.POST.getlist('friends')
+        chat_room = get_object_or_404(ChatRoom, id=chat_id)
+
+        friends = User.objects.filter(id__in=friends_ids)
+        chat_room.participants.add(*friends)
+
+        participants = chat_room.participants.annotate(
+            current_status=F('userprofile__current_status')
+        ).values('id', 'username', 'current_status')
+
+        active_users = {user['id']: user['current_status'] for user in participants}
+        print(active_users)
+        print(active_users)
+        return JsonResponse({'status': 'success', 'participants': list(participants), 'active_users': list(active_users)})
+
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

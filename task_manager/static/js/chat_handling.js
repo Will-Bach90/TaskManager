@@ -662,3 +662,148 @@ activitySocket.onclose = function(e) {
     console.log('User is now Inactive');
     updateActivity(21000)
 };
+
+
+
+
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('add-friends-form');
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        for (let [key, value] of formData.entries()) {
+            console.log(`${key}: ${value}`);
+        }
+        const modal = $('#exampleModal');
+        console.log(formData);
+        const response = await fetch('/rooms/chat/add-users/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+            },
+            body: formData,
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            alert('Friends added successfully!');
+            updateParticipantsList(data.participants, data.active_users);
+        } else {
+            alert('Failed to add friends.');
+        }
+        modal.modal('hide');
+    });
+});
+
+// document.getElementById('add-friends-form').addEventListener('submit', (event) => {
+//     event.preventDefault(); // Prevent form from submitting normally
+//     const formData = new FormData(event.target);
+
+// });
+
+
+function updateParticipantsList(participants, activeUsers) {
+    const participantsList = document.getElementById('participants-list');
+    participantsList.innerHTML = ''; 
+    console.log(participants)
+    console.log(activeUsers)
+    participants.forEach(participant => {
+        const listItem = document.createElement('li');
+        listItem.className = 'nav-item p-2 py-3 mx-1 shadow-sm chat-item';
+
+        const containerDiv = document.createElement('div');
+        containerDiv.className = 'd-flex justify-content-between align-items-center w-100 text-decoration-none';
+
+        let statusColor, statusText;
+        if (activeUsers.includes(participant.id)) {
+            const status = activeUsers[participant.id];
+            if (status === 'Active') {
+                statusColor = 'green';
+                statusText = 'Active';
+            } else if (status === 'Idle') {
+                statusColor = 'rgb(231, 208, 0)';
+                statusText = 'Idle';
+            } else if (status === 'Inactive') {
+                statusColor = 'red';
+                statusText = 'Inactive';
+            } else {
+                statusColor = 'rgb(155, 155, 155)';
+                statusText = 'Offline';
+            }
+        } else {
+            statusColor = 'rgb(155, 155, 155)';
+            statusText = 'Offline';
+        }
+
+        const statusDiv = document.createElement('div');
+        statusDiv.id = `user-activity-status-${participant.id}`;
+        statusDiv.style.color = statusColor;
+
+        const statusIndicator = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        statusIndicator.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        statusIndicator.setAttribute('width', '8');
+        statusIndicator.setAttribute('height', '8');
+        statusIndicator.setAttribute('fill', 'currentColor');
+        statusIndicator.setAttribute('class', 'status-indicator');
+        statusIndicator.setAttribute('viewBox', '0 0 16 16');
+        statusIndicator.setAttribute('data-bs-toggle', 'tooltip');
+        statusIndicator.setAttribute('data-bs-placement', 'bottom');
+        statusIndicator.setAttribute('data-bs-custom-class', 'custom-tooltip');
+        statusIndicator.setAttribute('data-bs-title', `Last seen: ${participant.last_activity} ago`);
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '8');
+        circle.setAttribute('cy', '8');
+        circle.setAttribute('r', '8');
+
+        statusIndicator.appendChild(circle);
+        statusDiv.appendChild(statusIndicator);
+
+        const usernameLink = document.createElement('a');
+        usernameLink.className = 'text-white text-truncate ms-2 text-decoration-none';
+        usernameLink.href = '#';
+        usernameLink.style.maxWidth = '10ch';
+        usernameLink.title = participant.first_name || participant.username;
+        usernameLink.textContent = participant.username;
+
+        const dropdownDiv = document.createElement('div');
+        dropdownDiv.className = 'dropdown';
+
+        const dropdownButton = document.createElement('a');
+        dropdownButton.setAttribute('type', 'button');
+        dropdownButton.setAttribute('data-bs-toggle', 'dropdown');
+        dropdownButton.setAttribute('aria-expanded', 'false');
+        dropdownButton.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+            </svg>
+        `;
+
+        const dropdownMenu = document.createElement('ul');
+        dropdownMenu.className = 'dropdown-menu';
+        dropdownMenu.innerHTML = `
+            <li><a class="dropdown-item" href="#">Remove</a></li>
+            <li><a class="dropdown-item" href="#">Profile</a></li>
+        `;
+
+        dropdownDiv.appendChild(dropdownButton);
+        dropdownDiv.appendChild(dropdownMenu);
+
+        containerDiv.appendChild(statusDiv);
+        containerDiv.appendChild(usernameLink);
+        containerDiv.appendChild(dropdownDiv);
+
+        listItem.appendChild(containerDiv);
+
+        participantsList.appendChild(listItem);
+    });
+}
+
