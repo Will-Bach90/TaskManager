@@ -70,10 +70,10 @@ class ChatroomCreateView(LoginRequiredMixin, CreateView):
 class ChatRoomDeleteView(DeleteView):
     model = ChatRoom
     template_name = 'chatapp/chatroom_confirm_delete.html'
-    success_url = reverse_lazy('chatapp:chat_list')  # Redirect to chat list after deletion
+    success_url = reverse_lazy('chatapp:chat_list')
 
     def dispatch(self, request, *args, **kwargs):
-        # Restrict access to the admin of the chatroom
+
         room = self.get_object()
         if request.user != room.admin:
             return HttpResponseForbidden("You do not have permission to delete this chatroom.")
@@ -112,6 +112,7 @@ def chat(request, room_name):
         'participants': participants,
         'active_users': active_users,
         'current_room': room,
+        'room_admin': room.admin,
     })
     response.render()
     return response
@@ -157,8 +158,16 @@ def add_users(request):
         ).values('id', 'username', 'current_status')
 
         active_users = {user['id']: user['current_status'] for user in participants}
-        print(active_users)
-        print(active_users)
         return JsonResponse({'status': 'success', 'participants': list(participants), 'active_users': list(active_users)})
 
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def remove_user(request, chat_id, user_id):
+    if request.method =='DELETE':
+        chat_room = get_object_or_404(ChatRoom, id=chat_id)
+        user = User.objects.get(id=user_id)
+
+        chat_room.participants.remove(user)
+        return JsonResponse({'status': 'success', 'removed': user.id})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

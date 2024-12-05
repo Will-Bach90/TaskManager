@@ -682,7 +682,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`${key}: ${value}`);
         }
         const modal = $('#exampleModal');
-        console.log(formData);
         const response = await fetch('/rooms/chat/add-users/', {
             method: 'POST',
             headers: {
@@ -807,3 +806,49 @@ function updateParticipantsList(participants, activeUsers) {
     });
 }
 
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('removeUserButton');
+    const modal1 = $('#removeUserModal');
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const chat_id = btn.getAttribute('data-message-id');
+
+        const user = document.getElementById('removeFriend');
+        const userId = user.getAttribute('data-message-id');
+
+        removeUser(chat_id, userId);
+        modal1.modal('hide');
+    });
+});
+
+function removeUser(chat_id, userId) {
+    fetch(`/rooms/api/${chat_id}/${userId}/remove/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCsrfToken(), 
+        },
+    })
+        .then(response => {
+            if (response.ok) {
+                const userElement = document.getElementById('member-' + userId + '-' + chat_id);
+                if (userElement) {
+                    userElement.remove();
+                } else {
+                    console.log("No such user");
+                }
+            } else {
+                alert('Failed to remove user.');
+            }
+        })
+        .catch(err => console.error('Error removing user: ', err));
+}
