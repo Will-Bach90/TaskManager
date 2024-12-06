@@ -143,25 +143,25 @@
                                 </svg>
                             </a>
                             <ul class="dropdown-menu">
-                                {% if request.user == room_admin %}
-                                    {% if request.user == user %}
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <span class="fs-5" data-bs-toggle="modal" data-bs-target="#removeUserModal">
-                                                Leave Room
-                                            </span>
-                                        </a>
-                                    </li>
-                                    {% else %}
-                                    <li>
-                                        <a class="dropdown-item" href="#">
-                                            <span id="removeFriend" class="fs-5" data-bs-toggle="modal" data-bs-target="#removeUserModal"  data-message-id="{{ user.id }}">
-                                                Remove Member
-                                            </span>
-                                        </a>
-                                    </li>
-                                    <li><a class="dropdown-item" href="#">Profile</a></li>
-                                    {% endif %}
+                                {% if request.user == user %}
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <span id="leaveRoom" data-bs-toggle="modal" data-bs-target="#leaveRoomModal" data-message-id="{{ user.id }}">
+                                            Leave
+                                        </span>
+                                    </a>
+                                </li>
+                                {% elif request.user == room_admin %}
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <span id="removeFriend" data-bs-toggle="modal" data-bs-target="#removeUserModal"  data-message-id="{{ user.id }}">
+                                            Remove
+                                        </span>
+                                    </a>
+                                </li>
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
+                                {% else %}
+                                <li><a class="dropdown-item" href="#">Profile</a></li>
                                 {% endif %}
                             </ul>
                         </div>
@@ -215,6 +215,9 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
+            Are you sure you want to remove this user from the chat?
+        </div>
+        <div class="modal-body">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary" id="removeUserButton" data-message-id="{{ current_room.id }}">
                 Ok
@@ -224,19 +227,21 @@
     </div>
   </div>
 
-  <div class="modal fade" id="leaveRoomModal" tabindex="-1" aria-labelledby="leaveRoom" aria-hidden="true">
+  <div class="modal fade" id="leaveRoomModal" tabindex="-1" aria-labelledby="LeaveRoom" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h1 class="modal-title fs-5" id="leaveRoom">Remove Member</h1>
+          <h1 class="modal-title fs-5" id="LeaveRoom">Leave Room</h1>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <form id="add-friends-form" method="post" action="{% url 'chatapp:add_users' %}">
-                {% csrf_token %}
-                <input type="hidden" name="chat_id" value="{{ current_room.id }}">
-                <button type="submit" class="btn btn-primary mt-2">ok</button>
-            </form>
+            Are you sure you want to leave this chat? To rejoin you must request access from the chat admin.
+        </div>
+        <div class="modal-body">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" id="leaveRoomButton" data-message-id="{{ current_room.id }}">
+                Ok
+            </button>
         </div>
       </div>
     </div>
@@ -249,19 +254,8 @@
 {% endblock %}
 {% load static %} 
 {% block scripts %}
-<script src="{% static 'js/chat_handling.js' %}"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{% static 'js/chat_handling.js' %}"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-<script>
-$(document).ready(function() {
-    $('#id_friends').select2({
-        placeholder: 'Select friends to add to this chat',
-        allowClear: true,
-        width: '100%',
-        dropdownCssClass: 'custom-select2-dropdown',
-        containerCssClass: 'custom-select2-container'
-    });
-});
-</script>
 {% endblock %}

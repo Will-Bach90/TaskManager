@@ -158,7 +158,22 @@ def add_users(request):
         ).values('id', 'username', 'current_status')
 
         active_users = {user['id']: user['current_status'] for user in participants}
-        return JsonResponse({'status': 'success', 'participants': list(participants), 'active_users': list(active_users)})
+        return JsonResponse(
+            {
+                'status': 'success', 
+                'participants': list(participants), 
+                'active_users': list(active_users), 
+                'chat_id': chat_id,
+                'current_user': {
+                    'id': request.user.id,
+                    'username': request.user.username,
+                },
+                'room_admin': {
+                    'id': chat_room.admin.id,
+                    'username': chat_room.admin.username,
+                },
+            }
+        )
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
@@ -169,5 +184,17 @@ def remove_user(request, chat_id, user_id):
         user = User.objects.get(id=user_id)
 
         chat_room.participants.remove(user)
+        print(f"User removed: {user.username}")
+        return JsonResponse({'status': 'success', 'removed': user.id})
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+@csrf_exempt
+def leave_room(request, chat_id, user_id):
+    if request.method =='DELETE':
+        chat_room = get_object_or_404(ChatRoom, id=chat_id)
+        user = User.objects.get(id=user_id)
+
+        chat_room.participants.remove(user)
+        print(f"User removed: {user.username}")
         return JsonResponse({'status': 'success', 'removed': user.id})
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

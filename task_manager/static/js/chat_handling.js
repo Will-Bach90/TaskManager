@@ -670,8 +670,8 @@ activitySocket.onclose = function(e) {
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 // &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-
-document.addEventListener('DOMContentLoaded', () => {
+jQuery.noConflict();
+jQuery(document).ready(function ($) {
     const form = document.getElementById('add-friends-form');
 
     form.addEventListener('submit', async (event) => {
@@ -692,14 +692,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (response.ok) {
             const data = await response.json();
-            alert('Friends added successfully!');
-            updateParticipantsList(data.participants, data.active_users);
+            updateParticipantsList(data.participants, data.active_users, data.current_user, data.room_admin, data.chat_id);
         } else {
             alert('Failed to add friends.');
         }
         modal.modal('hide');
     });
 });
+
 
 // document.getElementById('add-friends-form').addEventListener('submit', (event) => {
 //     event.preventDefault(); // Prevent form from submitting normally
@@ -708,13 +708,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // });
 
 
-function updateParticipantsList(participants, activeUsers) {
+function updateParticipantsList(participants, activeUsers, current_user, room_admin, chat_id) {
     const participantsList = document.getElementById('participants-list');
     participantsList.innerHTML = ''; 
-    console.log(participants)
-    console.log(activeUsers)
     participants.forEach(participant => {
         const listItem = document.createElement('li');
+        listItem.id = "member-" + participant.id + "-" + chat_id;
         listItem.className = 'nav-item p-2 py-3 mx-1 shadow-sm chat-item';
 
         const containerDiv = document.createElement('div');
@@ -788,11 +787,33 @@ function updateParticipantsList(participants, activeUsers) {
 
         const dropdownMenu = document.createElement('ul');
         dropdownMenu.className = 'dropdown-menu';
-        dropdownMenu.innerHTML = `
-            <li><a class="dropdown-item" href="#">Remove</a></li>
-            <li><a class="dropdown-item" href="#">Profile</a></li>
-        `;
 
+        if(current_user.id == participant.id) {
+            dropdownMenu.innerHTML = `
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <span data-bs-toggle="modal" data-bs-target="#removeUserModal">
+                            Leave
+                        </span>
+                    </a>
+                </li>
+            `;
+        } else if(current_user.id == room_admin.id) {
+            dropdownMenu.innerHTML = `
+                <li>
+                    <a class="dropdown-item" href="#">
+                        <span id="removeFriend" data-bs-toggle="modal" data-bs-target="#removeUserModal"  data-message-id="`  + participant.id + `">
+                            Remove
+                        </span>
+                    </a>
+                </li>
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+            `;
+        } else {
+            dropdownMenu.innerHTML = `
+                <li><a class="dropdown-item" href="#">Profile</a></li>
+            `;
+        }
         dropdownDiv.appendChild(dropdownButton);
         dropdownDiv.appendChild(dropdownMenu);
 
@@ -815,17 +836,17 @@ function updateParticipantsList(participants, activeUsers) {
 
 
 
-
-document.addEventListener('DOMContentLoaded', () => {
+jQuery.noConflict();
+jQuery(document).ready(function ($) {
     const btn = document.getElementById('removeUserButton');
     const modal1 = $('#removeUserModal');
     btn.addEventListener('click', function (e) {
         e.preventDefault();
         const chat_id = btn.getAttribute('data-message-id');
-
+    
         const user = document.getElementById('removeFriend');
         const userId = user.getAttribute('data-message-id');
-
+    
         removeUser(chat_id, userId);
         modal1.modal('hide');
     });
@@ -849,6 +870,65 @@ function removeUser(chat_id, userId) {
             } else {
                 alert('Failed to remove user.');
             }
+        })
+        .catch(err => console.error('Error removing user: ', err));
+}
+
+jQuery.noConflict();
+jQuery(document).ready(function ($) {
+    $('#id_friends').select2({
+        placeholder: 'Select friends to add to this chat',
+        allowClear: true,
+        width: '100%',
+        dropdownCssClass: 'custom-select2-dropdown',
+        containerCssClass: 'custom-select2-container'
+    });
+});
+
+
+
+
+
+
+
+jQuery.noConflict();
+jQuery(document).ready(function ($) {
+    const btn = document.getElementById('leaveRoomButton');
+    const modal1 = $('#leaveRoomModal');
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const chat_id = btn.getAttribute('data-message-id');
+    
+        const user = document.getElementById('leaveRoom');
+        const userId = user.getAttribute('data-message-id');
+    
+        removeUser(chat_id, userId);
+        modal1.modal('hide');
+    });
+});
+
+function leaveRoom(chat_id, userId) {
+    fetch(`/rooms/api/${chat_id}/${userId}/leave/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCsrfToken(), 
+        },
+    })
+        .then(response => {
+            if (response.ok) {
+                const userElement = document.getElementById('member-' + userId + '-' + chat_id);
+                if (userElement) {
+                    userElement.remove();
+                    window.location.href = '/rooms/';
+                    setTimeout(() => location.reload(), 2000);
+                    console.log(window.location.href)
+                } else {
+                    console.log("No such user");
+                }
+            } else {
+                alert('Failed to remove user.');
+            }
+
         })
         .catch(err => console.error('Error removing user: ', err));
 }
