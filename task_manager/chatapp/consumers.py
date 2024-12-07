@@ -7,33 +7,6 @@ from task_manager.utils import is_user_logged_out
 from django.utils.timezone import now
 from datetime import timedelta
 from task_manager.consumers import BaseWebSocketConsumer
-# from django.contrib.sessions.models import Session
-
-# def is_user_active(user):
-#     if is_user_logged_out(user):
-#         return "Offline"
-
-#     active_threshold = timedelta(minutes=2) 
-#     idle_threshold = timedelta(minutes=10)
-#     time_elapsed = now() - user.userprofile.last_activity
-
-#     if time_elapsed <= active_threshold:
-#         return "Active"
-#     elif time_elapsed > active_threshold and time_elapsed <= idle_threshold:
-#         return "Idle"
-#     elif time_elapsed > idle_threshold:
-#         return "Inactive"
-
-# def is_user_logged_out(user):
-#     if not user.is_authenticated:
-#         return True
-#     from django.contrib.sessions.models import Session
-#     sessions = Session.objects.filter(expire_date__gte=now())
-#     for session in sessions:
-#         data = session.get_decoded()
-#         if user.id == int(data.get('_auth_user_id', 0)):
-#             return False
-#     return True 
 
 class ChatConsumer(BaseWebSocketConsumer):
     async def connect(self):
@@ -191,3 +164,30 @@ class ActivityConsumer(BaseWebSocketConsumer):
         user = User.objects.get(id=user_id)
         return [user.userprofile.current_status, user.userprofile.last_activity]
         # return is_user_active(user)
+
+
+##=================================================================================
+class ChatUserConsumer(BaseWebSocketConsumer):
+    async def connect(self):
+        self.room_name = self.scope['url_route']['kwargs']['room_name']
+        self.room_group_name = f"chat_{self.room_name}"
+
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        await self.channel_layer.group_discard(
+            self.room_group_name,
+            self.channel_name
+        )
+
+    async def participant_update(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "participant_update",
+            "event": event["event"],
+            "user_id": event["user_id"],
+            "username": event["username"],
+        }))

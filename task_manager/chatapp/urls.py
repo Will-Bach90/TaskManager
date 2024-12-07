@@ -12,7 +12,7 @@ urlpatterns = [
     path('chat/delete/<int:pk>/', views.ChatRoomDeleteView.as_view(), name='chat_delete'),
     path('chat/add-users/', views.add_users, name='add_users'), #'/rooms/chat/add-users/'
     path('api/<int:chat_id>/<int:user_id>/remove/', views.remove_user, name='remove_users'),
-    path('api/${chat_id}/${userId}/leave/', views.leave_room, name='leave_room'),
+    path('api/<int:chat_id>/<int:user_id>/leave/', views.leave_room, name='leave_room'),
 
     path('message/<int:message_id>/delete/', views.delete_message, name='delete_message'),
     path('message/<int:message_id>/edit/', views.edit_message, name='edit_message'),

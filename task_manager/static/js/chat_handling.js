@@ -52,7 +52,7 @@ chatSocket.onmessage = function (e) {
 
 function forceRepaint(element) {
     element.style.display = 'none';
-    element.offsetHeight; // Trigger reflow
+    element.offsetHeight; 
     element.style.display = '';
 }
 function updateChatLog(author, message, timestamp, isCurrentUser, currentUserId, authorId, messageId) {
@@ -902,7 +902,7 @@ jQuery(document).ready(function ($) {
         const user = document.getElementById('leaveRoom');
         const userId = user.getAttribute('data-message-id');
     
-        removeUser(chat_id, userId);
+        leaveRoom(chat_id, userId);
         modal1.modal('hide');
     });
 });
@@ -913,14 +913,13 @@ function leaveRoom(chat_id, userId) {
         headers: {
             'X-CSRFToken': getCsrfToken(), 
         },
-    })
-        .then(response => {
+    }).then(response => {
             if (response.ok) {
                 const userElement = document.getElementById('member-' + userId + '-' + chat_id);
                 if (userElement) {
                     userElement.remove();
                     window.location.href = '/rooms/';
-                    setTimeout(() => location.reload(), 2000);
+                    setTimeout(() => location.reload(), 100);
                     console.log(window.location.href)
                 } else {
                     console.log("No such user");
@@ -932,3 +931,24 @@ function leaveRoom(chat_id, userId) {
         })
         .catch(err => console.error('Error removing user: ', err));
 }
+
+const userSocket = new WebSocket('ws://' + window.location.host + '/ws/chat_member/');
+
+userSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    if (data.type === "participant_update") {
+        const { event, user_id, username } = data;
+
+        if (event === "add") {
+            console.log(`${username} joined the chat.`);
+            // Add the participant to the list
+        } else if (event === "remove" || event === "leave") {
+            console.log(`${username} left the chat.`);
+            // Remove the participant from the list
+        }
+    }
+};
+
+userSocket.onclose = function(e) {
+    console.error("Chat socket closed unexpectedly");
+};
